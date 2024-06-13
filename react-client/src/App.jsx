@@ -1,16 +1,22 @@
 import './App.css'
 import checkUserLoggedIn from "./Components/GoogleAuth/checkUserLoggedIn.jsx";
-import handleGoogle from "./Components/GoogleAuth/GoogleAuth.jsx";
+import {useState} from "react";
+import Redirect from "./Components/Redirect.jsx";
+import ErrorLandingPage from "./Components/ErrorLandingPage.jsx";
 
 function App() {
-    const isUserLoggedIn = checkUserLoggedIn();
+    const [userLoginState, setUserLoginState] = useState("none");
+    checkUserLoggedIn(setUserLoginState);
+    if (userLoginState === "Logged In") {
+        return <div>User is logged in. Make some fancy api calls to firestore and return a beautiful homepage when the hard work is over :p</div>
+    }
+    if (userLoginState === "Not Logged In") {
+        return <Redirect href={"onboarding"}/>
+    }
     return (
-        <>
-            <div hidden={!isUserLoggedIn}>
-                <p className={"text-lg"}>user logged in</p>
-            </div>
-            <div hidden={isUserLoggedIn} onClick={handleGoogle}>Log in With google!</div>
-        </>
+        <ErrorLandingPage
+        message={"You're not supposed to see this... Try clearing your cookies and refreshing this page."}
+        />
     )
 }
 

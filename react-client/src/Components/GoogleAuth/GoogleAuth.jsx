@@ -1,9 +1,9 @@
 import {GoogleAuthProvider, signInWithPopup} from "firebase/auth";
 import {auth} from "../../firebase.js";
 
-export default async function handleGoogle(e) {
-
-    console.log("handling google");
+export default async function handleGoogle() {
+    console.log(Intl.DateTimeFormat().resolvedOptions().timeZone);
+    console.log("Google Login with Firebase");
     const provider = await new GoogleAuthProvider();
     return signInWithPopup(auth, provider)
         .then((result) => {
@@ -14,6 +14,7 @@ export default async function handleGoogle(e) {
             const displayName = user.displayName;
             const email = user.email;
             console.log(displayName + " " + email);
+            window.location.href = "/";
         })
         .catch((error) => {
             const errorCode = error.code;

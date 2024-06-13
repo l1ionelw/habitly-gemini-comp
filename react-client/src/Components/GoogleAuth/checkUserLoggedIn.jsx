@@ -1,17 +1,15 @@
 import {getAuth, onAuthStateChanged} from "firebase/auth";
-import {useState} from "react";
 
-export default function checkUserLoggedIn() {
-    const [loggedIn, setLoggedIn] = useState(null);
+export default function checkUserLoggedIn(setUserLoggedIn) {
     const auth = getAuth();
     onAuthStateChanged(auth, (user) => {
         if (user) {
-            console.log("user is logged in");
+            console.log("User is logged in")
             console.log(user);
-            setLoggedIn(true);
+            setUserLoggedIn("Logged In");
         } else {
-            setLoggedIn(false);
+            console.log("User is not logged in");
+            setUserLoggedIn("Not Logged In");
         }
     });
-    return loggedIn;
 }
