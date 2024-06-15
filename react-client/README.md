@@ -68,3 +68,6 @@ UTF-8 is 4 bytes (A-Z a-z alphabet is 1 byte) which is (probably) way larger tha
 be written in english, with 300 logs a year, all going up to the max limit of 800 characters.
 
 
+**Edit**
+Assign specific unique id to habits and all logs stored are matched by key from unique habit id
+
