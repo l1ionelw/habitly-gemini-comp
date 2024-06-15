@@ -1,22 +1,18 @@
 import './App.css'
-
 import {useContext} from "react";
-import Redirect from "./Components/Redirect.jsx";
-import Habits from "./Components/Habits/Habits.jsx";
+import {Auth} from "./Components/Contexts/AuthContext.jsx";
+import {Navigate} from "react-router-dom";
 import Loading from "./Components/Loading.jsx";
-import {AuthContext} from "./Contexts/AuthContext.jsx";
-import {Navigate, redirect} from "react-router-dom";
 
-function App() {
-    const userLoginState = useContext(AuthContext);
 
-    if (typeof userLoginState === "object") {
-        return <Redirect href={"/habits"}/>
+export default function App() {
+    const userLoginState = useContext(Auth).authState;
+    console.log(userLoginState);
+    if (userLoginState === "Logged In") {
+        return <Navigate to={"/habits"} replace={true}/>
     }
     if (userLoginState === "Not Logged In") {
-        return <Redirect href={"/onboarding"}/>
+        return <Navigate to={"/onboarding"} replace={true}/>
     }
     return <Loading/>
 }
-
-export default App
