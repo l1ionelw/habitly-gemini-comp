@@ -1,24 +1,22 @@
 import './App.css'
-import checkUserLoggedIn from "./Components/GoogleAuth/checkUserLoggedIn.jsx";
-import {useState} from "react";
+
+import {useContext} from "react";
 import Redirect from "./Components/Redirect.jsx";
-import ErrorLandingPage from "./Components/ErrorLandingPage.jsx";
-import Home from "./Components/Home/Home.jsx";
+import Habits from "./Components/Habits/Habits.jsx";
+import Loading from "./Components/Loading.jsx";
+import {AuthContext} from "./Contexts/AuthContext.jsx";
+import {Navigate, redirect} from "react-router-dom";
 
 function App() {
-    const [userLoginState, setUserLoginState] = useState("none");
-    checkUserLoggedIn(setUserLoginState);
-    if (userLoginState === "Logged In") {
-        return <Home/>
+    const userLoginState = useContext(AuthContext);
+
+    if (typeof userLoginState === "object") {
+        return <Redirect href={"/habits"}/>
     }
     if (userLoginState === "Not Logged In") {
-        return <Redirect href={"onboarding"}/>
+        return <Redirect href={"/onboarding"}/>
     }
-    return (
-        <ErrorLandingPage
-        message={"You're not supposed to see this... Try clearing your cookies and refreshing this page."}
-        />
-    )
+    return <Loading/>
 }
 
 export default App
