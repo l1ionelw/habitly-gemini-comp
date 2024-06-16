@@ -2,16 +2,10 @@ import {useContext, useEffect, useState} from "react";
 import {Auth} from "../Contexts/AuthContext.jsx";
 import getUserData from "../../Utils/getUserData.js";
 import Loading from "../Loading.jsx";
+import getItemFromFirestore from "../../Utils/getItemFromFirestore.js";
+import AddHabit from "./AddHabit.jsx";
 
 export default function Habits() {
-    /*
-    isloading is true
-    check if user is logged in
-    get user id
-    get user things by id
-    set isloading to false
-    return it
-     */
     const [userData, setUserData] = useState(null);
     const userId = useContext(Auth).user.uid;
     useEffect(() => {
@@ -19,7 +13,11 @@ export default function Habits() {
             console.log(data)
             setUserData(data);
         })
+        getItemFromFirestore(userId, "habits").then(data=>{
+            console.log(data);
+        });
     }, [userId]);
+
 
     if (userData) {
         return (
@@ -28,8 +26,9 @@ export default function Habits() {
                     <h1>{userData.name}</h1>
                     <h3>{userData.email}</h3>
                 </div>
-
-
+                <div>
+                    <AddHabit/>
+                </div>
             </div>
         )
     }

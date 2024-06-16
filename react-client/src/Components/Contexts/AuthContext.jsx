@@ -26,3 +26,4 @@ export default function AuthContext({children}) {
     }
     return <Auth.Provider value={values}>{!isLoading && children}</Auth.Provider>
 }
+
