@@ -1,7 +1,8 @@
 import {GoogleAuthProvider, signInWithPopup} from "firebase/auth";
 import {auth, db} from "../../firebase.js";
-import {doc, getDoc, setDoc, serverTimestamp} from "firebase/firestore";
-import {DateTime} from "luxon";
+import {doc, getDoc, serverTimestamp} from "firebase/firestore";
+import getItemFromFirestore from "../../Utils/getItemFromFirestore.js";
+import setItemIntoFirestore from "../../Utils/setItemIntoFirestore.js";
 
 export default async function handleGoogle() {
     const provider = await new GoogleAuthProvider();
@@ -11,12 +12,12 @@ export default async function handleGoogle() {
             const token = credential.accessToken;
             const user = result.user;
             const uid = user.uid;
-            const docRef = doc(db, "users", uid);
-
-            if (!await isUserInDatabase(docRef)) {
-                await setUserInDatabase(user, docRef);
+            const userData = await getItemFromFirestore(uid, "users");
+            if (!userData) {
+                console.log("user doesn't exist");
+                await setItemIntoFirestore("users", uid, getData(user))
             }
-
+            console.log("redirectinh");
             window.location.href = "/";
         })
         .catch((error) => {
@@ -28,25 +29,17 @@ export default async function handleGoogle() {
         });
 }
 
-async function setUserInDatabase(user, docRef) {
+function getData(user) {
     const uid = user.uid;
     const email = user.email;
     const displayName = user.displayName;
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    const userData = {
+    return {
         createdAt: serverTimestamp(),
         email: email,
         name: displayName,
         timezone: timezone
-    }
-
-    console.log(uid);
-    console.log(email);
-    console.log(displayName);
-    console.log(timezone);
-
-    await setDoc(docRef, userData);
-    console.log("Firebase timestamps added");
+    };
 }
 
 async function isUserInDatabase(docRef) {

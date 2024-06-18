@@ -4,17 +4,17 @@ import getUserData from "../../Utils/getUserData.js";
 import Loading from "../Loading.jsx";
 import getItemFromFirestore from "../../Utils/getItemFromFirestore.js";
 import AddHabit from "./AddHabit.jsx";
+import HabitsList from "./HabitsList.jsx";
+import {data} from "autoprefixer";
 
 export default function Habits() {
     const [userData, setUserData] = useState(null);
     const userId = useContext(Auth).user.uid;
     useEffect(() => {
-        getUserData(userId).then(data => {
-            console.log(data)
-            setUserData(data);
-        })
-        getItemFromFirestore(userId, "habits").then(data=>{
+        getItemFromFirestore(userId, "users").then(data => {
+            console.log("USER DATA");
             console.log(data);
+            setUserData(data);
         });
     }, [userId]);
 
@@ -28,6 +28,7 @@ export default function Habits() {
                 </div>
                 <div>
                     <AddHabit/>
+                    <HabitsList/>
                 </div>
             </div>
         )
