@@ -2,6 +2,7 @@ import React, {useContext, useEffect, useState} from "react";
 import {Auth} from "../Contexts/AuthContext.jsx";
 import Loading from "../Loading.jsx";
 import queryItemFromFirestore from "../../Utils/queryItemFromFirestore.js";
+import DeleteHabit from "./DeleteHabit.jsx";
 
 export default function HabitsList() {
     const userId = useContext(Auth).user.uid;
@@ -26,6 +27,7 @@ export default function HabitsList() {
                     return <div>
                         <h3>{habit.title}</h3>
                         <p>{JSON.stringify(habit)}</p>
+                        <DeleteHabit documentId={habit.id}/>
                     </div>
                 })}
             </div>

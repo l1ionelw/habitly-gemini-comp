@@ -1,11 +1,9 @@
 import {useContext, useEffect, useState} from "react";
 import {Auth} from "../Contexts/AuthContext.jsx";
-import getUserData from "../../Utils/getUserData.js";
 import Loading from "../Loading.jsx";
 import getItemFromFirestore from "../../Utils/getItemFromFirestore.js";
 import AddHabit from "./AddHabit.jsx";
 import HabitsList from "./HabitsList.jsx";
-import {data} from "autoprefixer";
 
 export default function Habits() {
     const [userData, setUserData] = useState(null);

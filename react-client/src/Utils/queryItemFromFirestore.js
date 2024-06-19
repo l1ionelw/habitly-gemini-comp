@@ -11,7 +11,9 @@ export default async function queryItemFromFirestore(collectionName, desiredKey,
     if (querySnapshot) {
         let dataReturnArray = [];
         querySnapshot.forEach((doc) => {
-            dataReturnArray.push(doc.data());
+            let documentDataJson = JSON.parse(JSON.stringify(doc.data()));
+            documentDataJson.id = doc.id;
+            dataReturnArray.push(documentDataJson);
         })
         return dataReturnArray;
     } else {

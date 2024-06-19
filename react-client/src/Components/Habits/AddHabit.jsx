@@ -1,9 +1,6 @@
 import {useContext, useState} from "react";
-import setItemIntoFirestore from "../../Utils/setItemIntoFirestore.js";
 import {Auth} from "../Contexts/AuthContext.jsx";
 import {doc, serverTimestamp, setDoc} from "firebase/firestore";
-import {db} from "../../firebase.js";
-import getItemFromFirestore from "../../Utils/getItemFromFirestore.js";
 import addItemIntoFirestore from "../../Utils/addItemIntoFirestore.js";
 import queryItemFromFirestore from "../../Utils/queryItemFromFirestore.js";
 import checkHabitExists from "./Utils/checkHabitExists.js";
@@ -43,9 +40,9 @@ export default function AddHabit() {
     return (
         <div>
             <form onSubmit={onSubmit}>
-                <input placeholder={"title"} onChange={(e) => setValue(e.target.value)}/>
+                <input placeholder={"title"} value={value} onChange={(e) => setValue(e.target.value)}/>
                 <br/>
-                <input placeholder={"mission statement"} onChange={(e) => setMissionStatement(e.target.value)}/>
+                <input placeholder={"mission statement"} value={missionStatement} onChange={(e) => setMissionStatement(e.target.value)}/>
                 <br/>
                 <input type={"submit"} value={"Add new habit"}/>
             </form>
