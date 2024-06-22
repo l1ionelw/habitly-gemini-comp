@@ -28,6 +28,7 @@ export default function HabitsList() {
         return (
             <div>
                 <br/>
+                <h2>My Habits</h2>
                 {habitsList.map((habit) => {
                     return <div>
                         <h3><a href={`/habits/detail/${habit.id}`}>{habit.title}</a></h3>

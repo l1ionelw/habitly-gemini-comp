@@ -59,6 +59,7 @@ export default function AddHabit() {
 
     return (
         <div>
+            <h2>Add a habit</h2>
             <form onSubmit={onSubmit}>
                 <input placeholder={"title"} value={title} onChange={(e) => setTitle(e.target.value)}/>
                 <br/>

@@ -4,7 +4,7 @@ import Onboarding from "./Components/Onboarding/Onboarding.jsx";
 import Habits from "./Components/Habits/Habits.jsx";
 import React from "react";
 import Protected from "./Components/Protected.jsx";
-import DetailView from "./Components/DetailViewer/DetailView.jsx";
+import DetailView from "./Components/Habits/DetailViewer/DetailView.jsx";
 
 export const BrowserRoutes = createBrowserRouter([
     {

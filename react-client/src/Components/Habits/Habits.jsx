@@ -14,7 +14,7 @@ export default function Habits() {
 
     useMemo(() => {
         getItemFromFirestore(userId, "users").then(data => {
-            setUserData(data);
+            setUserData(data.data);
         });
     }, [userId]);
 
