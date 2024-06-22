@@ -1,17 +1,19 @@
-import {useContext, useEffect, useState} from "react";
+import {useContext, useMemo, useState} from "react";
 import {Auth} from "../Contexts/AuthContext.jsx";
 import Loading from "../Loading.jsx";
 import getItemFromFirestore from "../../Utils/getItemFromFirestore.js";
 import AddHabit from "./AddHabit.jsx";
 import HabitsList from "./HabitsList.jsx";
+import {HabitsListContext} from "../Contexts/HabitsListContext.js";
 
 export default function Habits() {
     const [userData, setUserData] = useState(null);
     const userId = useContext(Auth).user.uid;
-    useEffect(() => {
+    const [habitsList, setHabitsList] = useState();
+
+
+    useMemo(() => {
         getItemFromFirestore(userId, "users").then(data => {
-            console.log("USER DATA");
-            console.log(data);
             setUserData(data);
         });
     }, [userId]);
@@ -25,8 +27,10 @@ export default function Habits() {
                     <h3>{userData.email}</h3>
                 </div>
                 <div>
-                    <AddHabit/>
-                    <HabitsList/>
+                    <HabitsListContext.Provider value={{state: habitsList, setter: setHabitsList}}>
+                        <AddHabit/>
+                        <HabitsList/>
+                    </HabitsListContext.Provider>
                 </div>
             </div>
         )
