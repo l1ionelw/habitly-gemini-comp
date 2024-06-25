@@ -6,6 +6,7 @@ export default async function getItemFromFirestore(itemId, collectionName) {
     let data;
     let error;
 
+
     const docRef = doc(db, collectionName, itemId);
     const docSnap = await getDoc(docRef).catch(e => {
         console.log("Error fetching data");

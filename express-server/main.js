@@ -1,18 +1,21 @@
 const express = require('express');
+const cors = require('cors');
+const morgan = require("morgan");
 const { Sequelize, DataTypes } = require("sequelize");
 const { User } = require("./db");
 
 
 // init 
-const app = express();
+const express_app = express();
 const port = 5001;
 
-app.use(express.json());
-//app.use(cors());
-app.use(express.static("static"));
+express_app.use(express.json());
+express_app.use(cors());
+express_app.use(morgan('dev'));
+express_app.use(express.static("static"));
 
 const api = require("./router");
-app.use('/api', api);
+express_app.use('/api', api);
 
 
 // Dates returned UTC
@@ -29,9 +32,10 @@ User.init(
     }, { sequelize, modelName: "users" });
 
 // routes
-app.get('/', (req, res) => {
+express_app.get('/', (req, res) => {
     res.send('Hello World');
 })
-app.listen(port, () => {
+
+express_app.listen(port, () => {
     console.log(`Example app listening on port ${port}`);
 })

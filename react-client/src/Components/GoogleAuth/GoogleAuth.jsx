@@ -13,7 +13,7 @@ export default async function handleGoogle() {
             const user = result.user;
             const uid = user.uid;
             const userData = await getItemFromFirestore(uid, "users");
-            if (!userData) {
+            if (userData.status === "Error") {
                 console.log("user doesn't exist");
                 await setItemIntoFirestore("users", uid, getData(user))
             }

@@ -1,7 +1,14 @@
 {
+  "scripts": {
+    "dev": "node main.js"
+  },
   "dependencies": {
+    "@google-cloud/firestore": "^7.9.0",
     "@sequelize/sqlite3": "^7.0.0-alpha.41",
+    "cors": "^2.8.5",
     "express": "^4.19.2",
+    "firebase-admin": "^12.2.0",
+    "morgan": "^1.10.0",
     "sequelize": "^6.37.3"
   }
 }
