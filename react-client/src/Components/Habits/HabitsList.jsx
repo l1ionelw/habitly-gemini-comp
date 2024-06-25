@@ -34,7 +34,7 @@ export default function HabitsList() {
                         <h3><a href={`/habits/detail/${habit.id}`}>{habit.title}</a></h3>
                         <p>{JSON.stringify(habit)}</p>
                         <CompletedIndicator habitsList={habitsList} habitId={habit.id} />
-                        <DeleteHabit documentId={habit.id} />
+                        <DeleteHabit documentId={habit.id} variant={"HabitsList"} />
                     </div>
                 })}
             </div>

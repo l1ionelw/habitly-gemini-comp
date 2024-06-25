@@ -3,11 +3,12 @@ import {produce} from "immer";
 import {useContext} from "react";
 import {HabitsListContext} from "../Contexts/HabitsListContext.js";
 
-export default function DeleteHabit({documentId}) {
+export default function DeleteHabit({documentId, variant, onClick}) {
     const stateManager = useContext(HabitsListContext);
     function showDeleteConfirmation() {
         if (confirm("Are you sure? This action cannot be undone! ")) {
             handleDelete();
+            onClick ? onClick(): true;
         }
     }
 
@@ -19,7 +20,9 @@ export default function DeleteHabit({documentId}) {
         }
         console.log("deleting habit: ", documentId);
         deleteItemFromFirestore("habits", documentId);
-        updateStateList();
+        if (variant === "HabitsList") {
+            updateStateList();
+        }
     }
 
     function updateStateList() {

@@ -31,7 +31,7 @@ export default function AddHabit() {
         // TODO: handle firestore errors
         const currentHabits = await queryItemFromFirestore("habits", "ownerId", userId);
         if (!checkHabitExists(currentHabits, titleTrimmed)) {
-            const transaction = await addItemIntoFirestore(userId, "habits", data);
+            const transaction = await addItemIntoFirestore("habits", data);
             transaction.status === "Success" ? handleAddSuccess(data, transaction.data) : handleAddError("An Error Occurred: " + transaction.data);
         } else {
             handleAddError("An error occurred: This habit already exists");
