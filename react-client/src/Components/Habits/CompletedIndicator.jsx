@@ -4,8 +4,7 @@ import {DateTime} from 'luxon';
 import updateItemInsideFirestore from "../../Utils/updateItemInsideFirestore.js";
 import {produce} from "immer";
 import backendMarkComplete from "../../Utils/backend/backendMarkComplete.js";
-import {data} from "autoprefixer";
-import {useParams} from "react-router-dom";
+import backendMarkIncomplete from "../../Utils/backend/backendMarkIncomplete.js";
 
 export default function CompletedIndicator({habitId}) {
     const habitsList = useContext(HabitsListContext).state;
@@ -44,14 +43,17 @@ export default function CompletedIndicator({habitId}) {
     }
 
     async function incompleteHabit() {
+        await backendMarkIncomplete(habitId).then(e => {
+            console.log(e);
+        })
         let newState = produce(records, draft => {
             draft.splice(0, 1);
         });
         setRecords(newState);
         const toUpdate = {"records": newState};
         console.log(toUpdate);
-        await updateItemInsideFirestore("habits", habitId, toUpdate);
-        setHabitCompleted(false);
+        // await updateItemInsideFirestore("habits", habitId, toUpdate);
+        // setHabitCompleted(false);
     }
 
     return (
@@ -60,6 +62,7 @@ export default function CompletedIndicator({habitId}) {
             <button
                 onClick={habitCompleted ? incompleteHabit : completeHabit}>{habitCompleted ? "Incomplete Habit" : "Complete Habit"}</button>
             <button onClick={completeHabit}>Debug complete habit</button>
+            <button onClick={incompleteHabit}>Debug Incomplete habit</button>
         </div>
     )
 }

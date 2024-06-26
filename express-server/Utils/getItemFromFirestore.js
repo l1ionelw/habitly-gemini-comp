@@ -3,7 +3,6 @@ async function getItemFromFirestore(db, itemId, collectionName) {
     let data;
     let error;
 
-
     const docRef = db.collection(collectionName).doc(itemId);
     await docRef.get().then(docSnap => {
         if (docSnap) {

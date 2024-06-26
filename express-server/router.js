@@ -33,13 +33,6 @@ router.get('/', (req, res) => {
     res.send("EXPRESS API! YAYYYYYYYYY!");
 });
 
-router.post("/test/", verifyIdToken, async (req, res) => {
-    const uid = req.body.uid;
-    const key = req.body.key;
-
-    return res.send("meow");
-})
-
 router.post("/completehabit/", verifyIdToken, async (req, res, next) => {
     const uid = req.body.uid;
     const habitId = req.body.habitId;
@@ -90,6 +83,48 @@ router.post("/completehabit/", verifyIdToken, async (req, res, next) => {
     }
 })
 
+router.post("/incomplete/", verifyIdToken, async (req, res, next) => {
+    const uid = req.body.uid;
+    const habitId = req.body.habitId;
+    console.log(habitId);
+    let userTimeZone = await getItemFromFirestore(db, uid, "users");
+    if (userTimeZone.status !== "Success") {
+        return res.send("An error occurred while fetching user profile");
+    }
+    userTimeZone = userTimeZone.data.timezone;
+    console.log(userTimeZone);
+
+    let habitRecords = await getItemFromFirestore(db, habitId, "habits");
+    if (habitRecords.status !== "Success") {
+        return next({"message": "An error occurred while fetching habits profile", "statusCode": 405});
+    }
+    console.log(habitRecords);
+    habitRecords = habitRecords.data.records;
+    console.log(habitRecords);
+
+    if (habitRecords.length === 0) {
+        console.log("size is 0, what?");
+        return next({"message": "This operation is not permitted", "statusCode": 405});
+    }
+
+    const currentDay = DateTime.now().setZone(userTimeZone).startOf("days");
+    const lastHabitCompletedDay = DateTime.fromMillis(habitRecords[0], {zone: userTimeZone}).startOf("days");
+    console.log(currentDay);
+    console.log(lastHabitCompletedDay);
+    if (currentDay.equals(lastHabitCompletedDay) < 1) {
+        habitRecords.splice(0, 1);
+        await updateItemInsideFirestore(db, "habits", habitId, {"records": habitRecords}).then(e => {
+            console.log("Added successfully");
+            console.log(e);
+            return res.send({"status": "success", "data": habitRecords});
+        });
+    } else {
+        console.log("didnt complete habit today so cant match date");
+        return next({"message": "This operation is not permitted", "statusCode": 405});
+    }
+
+
+})
 
 
 module.exports = router;

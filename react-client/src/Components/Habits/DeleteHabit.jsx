@@ -1,39 +1,18 @@
-import deleteItemFromFirestore from "../../Utils/deleteItemFromFirestore.js";
-import {produce} from "immer";
-import {useContext} from "react";
-import {HabitsListContext} from "../Contexts/HabitsListContext.js";
+import deleteDataFromFirestore from "../../Utils/deleteItemFromFirestore.js";
 
-export default function DeleteHabit({documentId, variant, onClick}) {
-    const stateManager = useContext(HabitsListContext);
+export default function DeleteHabit({habitName}) {
     function showDeleteConfirmation() {
-        if (confirm("Are you sure? This action cannot be undone! ")) {
+        if (confirm("Are you sure you want to delete this entry? This action cannot be undone. ")) {
             handleDelete();
-            onClick ? onClick(): true;
         }
     }
 
     function handleDelete() {
-        if (!documentId) {
-            console.log("document doesn't have a valid id, please refresh and try again");
-            location.reload();
-            return
-        }
-        console.log("deleting habit: ", documentId);
-        deleteItemFromFirestore("habits", documentId);
-        if (variant === "HabitsList") {
-            updateStateList();
-        }
+        console.log("handling delete: ", habitName);
+        deleteDataFromFirestore("habits", habitName);
     }
 
-    function updateStateList() {
-        stateManager.setter(produce(draft => {
-            return draft.filter((habit) => habit.id !== documentId);
-        }))
-    }
-
-    return (
-        <div>
-            <button onClick={showDeleteConfirmation}>Delete Habit</button>
-        </div>
-    )
+    return (<div>
+        <button onClick={showDeleteConfirmation}>Delete Habit</button>
+    </div>)
 }
