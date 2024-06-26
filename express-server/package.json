@@ -1,6 +1,7 @@
 {
   "scripts": {
-    "dev": "node main.js"
+    "dev": "node main.js",
+    "test": "jest"
   },
   "dependencies": {
     "@google-cloud/firestore": "^7.9.0",
@@ -11,5 +12,9 @@
     "luxon": "^3.4.4",
     "morgan": "^1.10.0",
     "sequelize": "^6.37.3"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^7.0.0"
   }
 }

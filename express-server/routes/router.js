@@ -3,11 +3,11 @@ const router = express.Router();
 const admin = require('firebase-admin');
 const {getFirestore} = require("firebase-admin/firestore");
 
-const serviceAccount = require('./gemini-comp-f9cc5-firebase-adminsdk.json');
+const serviceAccount = require('../gemini-comp-f9cc5-firebase-adminsdk.json');
 const {getAuth} = require("firebase-admin/auth");
-const getItemFromFirestore = require("./Utils/getItemFromFirestore");
+const getItemFromFirestore = require("../Utils/getItemFromFirestore");
 const {DateTime} = require("luxon");
-const updateItemInsideFirestore = require("./Utils/updateItemInFirestore");
+const updateItemInsideFirestore = require("../Utils/updateItemInFirestore");
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
 });
@@ -111,7 +111,7 @@ router.post("/incomplete/", verifyIdToken, async (req, res, next) => {
     const lastHabitCompletedDay = DateTime.fromMillis(habitRecords[0], {zone: userTimeZone}).startOf("days");
     console.log(currentDay);
     console.log(lastHabitCompletedDay);
-    if (currentDay.equals(lastHabitCompletedDay) < 1) {
+    if (currentDay.equals(lastHabitCompletedDay)) {
         habitRecords.splice(0, 1);
         await updateItemInsideFirestore(db, "habits", habitId, {"records": habitRecords}).then(e => {
             console.log("Added successfully");

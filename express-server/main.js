@@ -14,7 +14,7 @@ express_app.use(cors());
 express_app.use(morgan('dev'));
 express_app.use(express.static("static"));
 
-const api = require("./router");
+const api = require("./routes/router");
 express_app.use('/api', api);
 
 
