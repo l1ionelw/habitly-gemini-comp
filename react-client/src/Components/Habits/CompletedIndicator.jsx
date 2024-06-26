@@ -3,6 +3,9 @@ import {HabitsListContext} from "../Contexts/HabitsListContext.js";
 import {DateTime} from 'luxon';
 import updateItemInsideFirestore from "../../Utils/updateItemInsideFirestore.js";
 import {produce} from "immer";
+import backendMarkComplete from "../../Utils/backend/backendMarkComplete.js";
+import {data} from "autoprefixer";
+import {useParams} from "react-router-dom";
 
 export default function CompletedIndicator({habitId}) {
     const habitsList = useContext(HabitsListContext).state;
@@ -29,14 +32,14 @@ export default function CompletedIndicator({habitId}) {
     }
 
     async function completeHabit() {
-        let newState = produce(records, draft => {
-            draft.unshift(DateTime.now().ts);
-        })
-        setRecords(newState);
-        console.log(records);
-        const toUpdate = {"records": newState};
-        console.log(toUpdate);
-        await updateItemInsideFirestore("habits", habitId, toUpdate);
+        //await updateItemInsideFirestore("habits", habitId, toUpdate);
+        let update = await backendMarkComplete(habitId);
+        console.log(update);
+        if (update.status === "Success") {
+            console.log("succeeded");
+        } else {
+            console.log(update.data);
+        }
         setHabitCompleted(true);
     }
 
@@ -54,7 +57,9 @@ export default function CompletedIndicator({habitId}) {
     return (
         <div>
             <p>{habitCompleted ? "Habit is completed" : "Habit not completed"}</p>
-            <button onClick={habitCompleted ? incompleteHabit : completeHabit}>{habitCompleted ? "Incomplete Habit" : "Complete Habit"}</button>
+            <button
+                onClick={habitCompleted ? incompleteHabit : completeHabit}>{habitCompleted ? "Incomplete Habit" : "Complete Habit"}</button>
+            <button onClick={completeHabit}>Debug complete habit</button>
         </div>
     )
 }

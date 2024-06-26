@@ -31,6 +31,15 @@ User.init(
         timezone: { type: DataTypes.STRING, allowNull: false },
     }, { sequelize, modelName: "users" });
 
+const errorHandler = (err, req, res, next) => {
+    err.message = err.message ? err.message : "An unknown error occurred";
+    err.statusCode = err.statusCode ? err.statusCode : 404;
+    console.log("CUSTOM ERROR HANDLER CAUGHT AN ERROR IN THE APPLICATION");
+    console.log(err);
+    return res.status(err.statusCode).send(err);
+}
+express_app.use(errorHandler);
+
 // routes
 express_app.get('/', (req, res) => {
     res.send('Hello World');
