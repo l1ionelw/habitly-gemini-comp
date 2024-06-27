@@ -62,7 +62,7 @@ router.post("/completehabit/", verifyIdToken, async (req, res, next) => {
         await updateItemInsideFirestore(db, "habits", habitId, {"records": habitRecords}).then(e => {
             console.log("Added successfully");
             console.log(e);
-            return res.send({"completedTime": currentTimeMillis});
+            return res.send({"status": "success", "data": habitRecords});
         });
     } else {
         console.log("already has previous time, validating operation");
@@ -74,7 +74,7 @@ router.post("/completehabit/", verifyIdToken, async (req, res, next) => {
             await updateItemInsideFirestore(db, "habits", habitId, {"records": habitRecords}).then(e => {
                 console.log("Added successfully");
                 console.log(e);
-                return res.send({"completedTime": currentTimeMillis});
+                return res.send({"status": "success", "data": habitRecords});
             });
         } else { // invalid
             console.log("This operation is invalid");

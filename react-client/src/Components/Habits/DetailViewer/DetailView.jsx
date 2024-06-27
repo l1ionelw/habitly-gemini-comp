@@ -7,14 +7,16 @@ import EditValue from "./EditValue.jsx";
 import updateItemInsideFirestore from "../../../Utils/updateItemInsideFirestore.js";
 import {produce} from "immer";
 import queryItemFromFirestore from "../../../Utils/queryItemFromFirestore.js";
-import {data} from "autoprefixer";
 import addItemIntoFirestore from "../../../Utils/addItemIntoFirestore.js";
 import {Auth} from "../../Contexts/AuthContext.jsx";
 import {serverTimestamp} from "firebase/firestore";
+import checkHabitCompleted from "../../../Utils/habits/checkHabitCompleted.js";
+import {DateTime} from "luxon";
 
 export default function DetailView() {
     const userId = useContext(Auth).user.uid;
     const habitId = useParams().habitId;
+
     const [habitInfo, setHabitInfo] = useState();
     const [error, setError] = useState("");
     const [redirect, setRedirect] = useState("");
@@ -25,11 +27,9 @@ export default function DetailView() {
     const [logContent, setLogContent] = useState("");
     const LOG_TITLE_MAX_CHARS = 45;
     const LOG_CONTENT_MAX_CHARS = 700;
-    console.log(habitId);
 
     useEffect(() => {
         getItemFromFirestore(habitId, "habits").then(resp => {
-            console.log(resp);
             if (resp.status === "Success") {
                 setHabitInfo(resp.data);
             } else if (resp.status === "Error") {
@@ -39,13 +39,13 @@ export default function DetailView() {
             }
         });
         queryItemFromFirestore("logs", "habitOwner", habitId).then(data => {
-            console.log(data);
+            console.log("fetched logs")
+            data = data.sort((a, b) => b.createdAt.seconds - a.createdAt.seconds);
             setLogs(data);
         })
     }, [])
 
-
-    function editHabitDetails(e) {
+    function updateHabitDetails(e) {
         e.preventDefault();
         const newTitle = e.target[0].value.trim();
         const newMissionStatement = e.target[1].value.trim();
@@ -61,23 +61,30 @@ export default function DetailView() {
         })
     }
 
+    function logEntryAllowed() {
+        if (logs.length === 0) {
+            return true;
+        }
+        const lastLogCreatedTime = DateTime.fromSeconds(logs[0].createdAt.seconds).startOf("day");
+        const now = DateTime.now().startOf("day");
+        return !lastLogCreatedTime.equals(now) && checkHabitCompleted(habitInfo.records);
+        // get most recent logs
+        // if logs !== today & habit completed return true
+    }
+
     function addNewLog(e) {
         e.preventDefault();
         setLogTitle(produce(draft => draft.trim()));
         setLogContent(produce(draft => draft.trim()));
         const data = {
             "title": logTitle,
-            "content": logContent,
-            "ownerId": userId,
+            "content": logContent,           "ownerId": userId,
             "habitOwner": habitId,
             "createdAt": serverTimestamp(),
         }
         console.log("Adding this data: ");
         console.log(data);
         addItemIntoFirestore("logs", data).then(e => {
-            console.log(e.status)
-            console.log(e.id)
-            console.log(e.data());
         })
     }
 
@@ -88,26 +95,24 @@ export default function DetailView() {
     if (habitInfo) {
         return (
             <div>
-                <div>
-                    {showEditor ?
-                        <form onSubmit={editHabitDetails}>
-                            <input placeholder={habitInfo.title}/><br/>
-                            <input placeholder={habitInfo.missionStatement}/>
-                            <input type={"submit"}/>
-                        </form> :
-                        <div>{habitInfo.title}<br/>{habitInfo.missionStatement}</div>
-                    }
-                </div>
+                <h1>Habit Details</h1>
+                {showEditor ?
+                    <form onSubmit={updateHabitDetails}>
+                        <input placeholder={habitInfo.title}/><br/>
+                        <input placeholder={habitInfo.missionStatement}/>
+                        <input type={"submit"}/>
+                    </form> :
+                    <div><strong>Habit Name: </strong>{habitInfo.title}<br/><strong>Mission
+                        Statement: </strong>{habitInfo.missionStatement}</div>
+                }
+                <br/>
                 <EditValue setShowEditor={setShowEditor}/>
+                <DeleteHabit documentId={habitId} onClick={() => setRedirect("/")}/>
 
                 <p>{JSON.stringify(habitInfo)}</p>
                 <HabitCompletedDaysCalendar completedDates={habitInfo.records}/>
-                <DeleteHabit documentId={habitId} onClick={() => setRedirect("/")}/>
 
                 <h2>Logs</h2>
-                {logs.map(content =>
-                    <div>{JSON.stringify(content)}<br/><br/><br/></div>)}
-
                 <form onSubmit={addNewLog}>
                     <input placeholder={"title"}
                            value={logTitle} onChange={(e) => setLogTitle(e.target.value)}
@@ -122,6 +127,10 @@ export default function DetailView() {
                     <br/>
                     <input type={"submit"}/>
                 </form>
+                <p>{logEntryAllowed() ? "Allowed" : "Not allowed"}</p>
+
+                {logs.map(content =>
+                    <div><h3>{content.title}</h3>{JSON.stringify(content)}<br/><br/><br/></div>)}
             </div>
         )
     }

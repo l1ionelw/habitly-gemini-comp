@@ -28,7 +28,7 @@ export default function HabitsList() {
         return (
             <div>
                 <br/>
-                <h2>My Habits</h2>
+                <h1>My Habits</h1>
                 {habitsList.map((habit) => {
                     return <div>
                         <h3><a href={`/habits/detail/${habit.id}`}>{habit.title}</a></h3>

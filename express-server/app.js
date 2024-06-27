@@ -6,16 +6,15 @@ const { User } = require("./db");
 
 
 // init 
-const express_app = express();
-const port = 5001;
+const app = express();
 
-express_app.use(express.json());
-express_app.use(cors());
-express_app.use(morgan('dev'));
-express_app.use(express.static("static"));
+app.use(express.json());
+app.use(cors());
+app.use(morgan('dev'));
+app.use(express.static("static"));
 
 const api = require("./routes/router");
-express_app.use('/api', api);
+app.use('/api', api);
 
 
 // Dates returned UTC
@@ -38,13 +37,11 @@ const errorHandler = (err, req, res, next) => {
     console.log(err);
     return res.status(err.statusCode).send(err);
 }
-express_app.use(errorHandler);
+app.use(errorHandler);
 
 // routes
-express_app.get('/', (req, res) => {
+app.get('/', (req, res) => {
     res.send('Hello World');
 })
 
-express_app.listen(port, () => {
-    console.log(`Example app listening on port ${port}`);
-})
+module.exports = app;

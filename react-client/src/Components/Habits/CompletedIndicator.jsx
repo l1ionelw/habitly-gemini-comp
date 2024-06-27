@@ -1,68 +1,49 @@
 import {useContext, useMemo, useState} from "react";
 import {HabitsListContext} from "../Contexts/HabitsListContext.js";
 import {DateTime} from 'luxon';
-import updateItemInsideFirestore from "../../Utils/updateItemInsideFirestore.js";
 import {produce} from "immer";
 import backendMarkComplete from "../../Utils/backend/backendMarkComplete.js";
 import backendMarkIncomplete from "../../Utils/backend/backendMarkIncomplete.js";
+import checkHabitCompleted from "../../Utils/habits/checkHabitCompleted.js";
 
 export default function CompletedIndicator({habitId}) {
     const habitsList = useContext(HabitsListContext).state;
+    const setHabits = useContext(HabitsListContext).setter;
     const myHabit = habitsList.filter((habit) => habit.id === habitId)[0];
-    const [records, setRecords] = useState(myHabit.records);
-    const [habitCompleted, setHabitCompleted] = useState(checkHabitCompletedToday());
-    console.log(myHabit);
-    console.log(records);
+    const records = myHabit.records;
+    const [habitCompleted, setHabitCompleted] = useState(checkHabitCompleted(records));
 
-    useMemo(() => {
-        setHabitCompleted(checkHabitCompletedToday());
-    }, [records])
-
-    function checkHabitCompletedToday() {
-        console.log(records);
-        console.log("MEOW");
-        if (!records || records.length === 0) {
-            return false;
+    function findHabitIndex() {
+        for (let i in habitsList) {
+            if (habitsList[i].id === habitId) {
+                return i;
+            }
         }
-        const lastTimeCompleted = DateTime.fromMillis(records[0]).startOf("day");
-        const now = DateTime.now().startOf("day");
-
-        return lastTimeCompleted.equals(now);
     }
 
-    async function completeHabit() {
-        //await updateItemInsideFirestore("habits", habitId, toUpdate);
-        let update = await backendMarkComplete(habitId);
-        console.log(update);
-        if (update.status === "Success") {
-            console.log("succeeded");
-        } else {
-            console.log(update.data);
-        }
-        setHabitCompleted(true);
-    }
-
-    async function incompleteHabit() {
-        await backendMarkIncomplete(habitId).then(e => {
+    async function updateNewState(functionCallback) {
+        let newRecords;
+        await functionCallback(habitId).then(async e => {
             console.log(e);
+            newRecords = await e.data.json().then(e => newRecords = e.data);
         })
-        let newState = produce(records, draft => {
-            draft.splice(0, 1);
-        });
-        setRecords(newState);
-        const toUpdate = {"records": newState};
-        console.log(toUpdate);
-        // await updateItemInsideFirestore("habits", habitId, toUpdate);
-        // setHabitCompleted(false);
+        console.log(newRecords);
+        setHabits(produce(draft => {
+            draft[findHabitIndex()].records = newRecords;
+        }))
+        setHabitCompleted(produce(draft => !draft))
+    }
+
+
+    async function toggleHabit() {
+        await updateNewState(habitCompleted ? backendMarkIncomplete : backendMarkComplete);
     }
 
     return (
         <div>
             <p>{habitCompleted ? "Habit is completed" : "Habit not completed"}</p>
             <button
-                onClick={habitCompleted ? incompleteHabit : completeHabit}>{habitCompleted ? "Incomplete Habit" : "Complete Habit"}</button>
-            <button onClick={completeHabit}>Debug complete habit</button>
-            <button onClick={incompleteHabit}>Debug Incomplete habit</button>
+                onClick={toggleHabit}>{habitCompleted ? "Incomplete Habit" : "Complete Habit"}</button>
         </div>
     )
 }
