@@ -1,13 +1,16 @@
 const express = require('express');
 const router = express.Router();
 const admin = require('firebase-admin');
-const {getFirestore} = require("firebase-admin/firestore");
-
+const {getFirestore, serverTimestamp} = require("firebase-admin/firestore");
 const serviceAccount = require('../gemini-comp-f9cc5-firebase-adminsdk.json');
 const {getAuth} = require("firebase-admin/auth");
 const getItemFromFirestore = require("../Utils/getItemFromFirestore");
 const {DateTime} = require("luxon");
 const updateItemInsideFirestore = require("../Utils/updateItemInFirestore");
+const addItemIntoFirestore = require("../Utils/addItemIntoFirestore");
+const {query} = require("express");
+const checkHabitCompleted = require("../Utils/checkHabitCompleted");
+const logEntryAllowed = require("../Utils/logEntryAllowed");
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
 });
@@ -41,7 +44,7 @@ router.post("/completehabit/", verifyIdToken, async (req, res, next) => {
 
     let userTimeZone = await getItemFromFirestore(db, uid, "users");
     if (userTimeZone.status !== "Success") {
-        return res.send("An error occurred while fetching user profile");
+        return next({"message": "An error occurred while fetching user profile", "statusCode": 424});
     }
     userTimeZone = userTimeZone.data.timezone;
     console.log(userTimeZone);
@@ -78,7 +81,7 @@ router.post("/completehabit/", verifyIdToken, async (req, res, next) => {
             });
         } else { // invalid
             console.log("This operation is invalid");
-            return next({"message": "This operation is invalid", "statusCode": 405});
+            return next({"message": "This operation is invalid", "statusCode": 403});
         }
     }
 })
@@ -89,7 +92,7 @@ router.post("/incomplete/", verifyIdToken, async (req, res, next) => {
     console.log(habitId);
     let userTimeZone = await getItemFromFirestore(db, uid, "users");
     if (userTimeZone.status !== "Success") {
-        return res.send("An error occurred while fetching user profile");
+        return next({"message": "An error occurred while fetching user profile", "statusCode": 424});
     }
     userTimeZone = userTimeZone.data.timezone;
     console.log(userTimeZone);
@@ -104,7 +107,7 @@ router.post("/incomplete/", verifyIdToken, async (req, res, next) => {
 
     if (habitRecords.length === 0) {
         console.log("size is 0, what?");
-        return next({"message": "This operation is not permitted", "statusCode": 405});
+        return next({"message": "This operation is not permitted", "statusCode": 403});
     }
 
     const currentDay = DateTime.now().setZone(userTimeZone).startOf("days");
@@ -120,11 +123,71 @@ router.post("/incomplete/", verifyIdToken, async (req, res, next) => {
         });
     } else {
         console.log("didnt complete habit today so cant match date");
-        return next({"message": "This operation is not permitted", "statusCode": 405});
+        return next({"message": "This operation is not permitted", "statusCode": 403});
     }
-
-
 })
 
+router.post("/log/add/", verifyIdToken, async (req, res, next) => {
+    // TODO: verify server side if allowed to add logs today
+    const TITLE_MAX_CHARS = 45;
+    const CONTENT_MAX_CHARS = 700;
+
+    const uid = req.body.uid;
+    const title = req.body.title;
+    const content = req.body.content;
+    const habitId = req.body.habitId;
+
+    if (title > TITLE_MAX_CHARS || content > CONTENT_MAX_CHARS) {
+        return next({"message": "Character limits exceeded for log content or title.", "statusCode": 403})
+    }
+
+    let userTimeZone = await getItemFromFirestore(db, uid, "users");
+    if (userTimeZone.status !== "Success") {
+        return next({"message": "An error occurred while fetching user profile", "statusCode": 424});
+    }
+    userTimeZone = userTimeZone.data.timezone;
+    console.log(userTimeZone);
+
+    let habitDoc = await getItemFromFirestore(db, habitId, "habits");
+    if (habitDoc.status !== "Success") {
+        return next({"message": "An error occurred while fetching habits profile", "statusCode": 424});
+    }
+    habitDoc = habitDoc.data;
+    if (habitDoc.ownerId !== uid) {
+        return next({"message": "This document does not exist, or is not yours", "statusCode": 403})
+    }
+
+    // verify habit can be done
+    let lastSubmittedLog;
+    const logsRef = db.collection("logs");
+    await logsRef.where("ownerId", "==", uid).orderBy("createdAt", "desc").limit(1).get().then(querySnapshot => {
+        querySnapshot.forEach((doc)=> {
+            console.log(doc.data());
+            lastSubmittedLog = doc.data();
+        })
+    });
+
+    console.log("last submitted log")
+    console.log(lastSubmittedLog);
+
+    // check log entry allowed
+    if (!logEntryAllowed(lastSubmittedLog, userTimeZone, habitDoc.records)) {
+        return next({"message": "This operation is not permitted", "statusCode": 403});
+    }
+
+    const data = {
+        "title": title,
+        "content": content,
+        "ownerId": uid,
+        "habitOwner": habitId,
+        "createdAt": admin.firestore.FieldValue.serverTimestamp()
+    }
+    // add to doc with the content
+    await addItemIntoFirestore(db, "logs", data).then(resp => {
+        data.id = resp.data;
+        data.createdAt = {"seconds": DateTime.now().toSeconds()}
+        return res.send(data)
+    })
+})
 
 module.exports = router;

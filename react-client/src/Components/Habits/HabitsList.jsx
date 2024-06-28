@@ -13,7 +13,6 @@ export default function HabitsList() {
     useEffect(() => {
         queryItemFromFirestore("habits", "ownerId", userId).then(data => {
             if (data) {
-                console.log(data);
                 setHabitsList(data);
             } else {
                 setHabitsList("No Habits");
