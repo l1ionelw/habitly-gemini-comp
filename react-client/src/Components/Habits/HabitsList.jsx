@@ -4,7 +4,7 @@ import Loading from "../Loading.jsx";
 import queryItemFromFirestore from "../../Utils/queryItemFromFirestore.js";
 import DeleteHabit from "./DeleteHabit.jsx";
 import CompletedIndicator from "./CompletedIndicator.jsx";
-import {HabitsListContext} from "../Contexts/HabitsListContext.js";
+import {HabitsListContext} from "../Contexts/HabitsListContext.jsx";
 
 export default function HabitsList() {
     const userId = useContext(Auth).user.uid;

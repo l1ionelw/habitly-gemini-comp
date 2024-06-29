@@ -7,6 +7,9 @@ import queryItemFromFirestore from "../../../Utils/queryItemFromFirestore.js";
 import LogViewer from "./LogViewer.jsx";
 import AddLog from "./AddLog.jsx";
 import HabitDetailEditor from "./HabitDetailEditor.jsx";
+import {produce} from "immer";
+import updateItemInsideFirestore from "../../../Utils/updateItemInsideFirestore.js";
+import CompletedIndicator from "../CompletedIndicator.jsx";
 
 export default function DetailView() {
     const habitId = useParams().habitId;
@@ -31,6 +34,19 @@ export default function DetailView() {
         })
     }, [])
 
+    function updateHabitDetails(updatedTitle, updatedMissionStatement) {
+        updateItemInsideFirestore("habits", habitId, {
+            "title": updatedTitle,
+            "missionStatement": updatedMissionStatement
+        }).then((e) => {
+            console.log(e);
+            setHabitInfo(produce(draft => {
+                draft.title = updatedTitle;
+                draft.missionStatement = updatedMissionStatement;
+            }))
+        })
+    }
+
 
 
     if (redirect) {
@@ -40,7 +56,7 @@ export default function DetailView() {
         return (
             <div>
                 <h1>Habit Details</h1>
-                <HabitDetailEditor habitInfo={habitInfo} setHabitInfo={setHabitInfo} />
+                <HabitDetailEditor title={habitInfo.title} missionStatement={habitInfo.missionStatement} callback={updateHabitDetails}/>
                 <DeleteHabit documentId={habitId} onClick={() => setRedirect("/")}/>
 
                 <p>{JSON.stringify(habitInfo)}</p>
@@ -49,9 +65,7 @@ export default function DetailView() {
                 <h2>Logs</h2>
 
                 <AddLog logs={logs} setLogs={setLogs} habitInfo={habitInfo}/>
-                <LogViewer logs={logs} />
-
-
+                <LogViewer logs={logs} setLogs={setLogs} />
             </div>
         )
     }

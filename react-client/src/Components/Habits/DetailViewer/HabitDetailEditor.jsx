@@ -1,34 +1,21 @@
 import EditValue from "./EditValue.jsx";
 import {useState} from "react";
-import {produce} from "immer";
-import updateItemInsideFirestore from "../../../Utils/updateItemInsideFirestore.js";
 
-export default function HabitDetailEditor({habitInfo, setHabitInfo}) {
+export default function HabitDetailEditor({title, missionStatement, callback, variant}) {
     const [showEditor, setShowEditor] = useState(false);
-    const [updatedTitle, setUpdatedTitle] = useState(habitInfo ? habitInfo.title : "");
-    const [updatedMissionStatement, setUpdatedMissionStatement] = useState(habitInfo ? habitInfo.missionStatement : "");
+    const [updatedTitle, setUpdatedTitle] = useState(title);
+    const [updatedMissionStatement, setUpdatedMissionStatement] = useState(missionStatement);
 
-    function updateHabitDetails(e) {
+    function handleSubmit(e) {
         e.preventDefault();
-        setUpdatedTitle(produce(draft => draft.trim()));
-        setUpdatedMissionStatement(produce(draft => draft.trim()));
-        updateItemInsideFirestore("habits", habitInfo.id, {
-            "title": updatedTitle,
-            "missionStatement": updatedMissionStatement
-        }).then((e) => {
-            console.log(e);
-            setShowEditor(false);
-            setHabitInfo(produce(draft => {
-                draft.title = updatedTitle;
-                draft.missionStatement = updatedMissionStatement;
-            }))
-        })
+        callback(updatedTitle.trim(), updatedMissionStatement.trim());
+        setShowEditor(false);
     }
 
     return (
         <div>
             {showEditor ?
-                <form onSubmit={updateHabitDetails}>
+                <form onSubmit={handleSubmit}>
                     <input placeholder={updatedTitle}
                            onChange={(e) => setUpdatedTitle(e.target.value)}
                     />
@@ -40,12 +27,11 @@ export default function HabitDetailEditor({habitInfo, setHabitInfo}) {
                     <input type={"submit"} value={"Update"}/>
                 </form> :
                 <div>
-                    <p><strong>Habit Name: </strong>{habitInfo.title}</p>
-                    <p><strong>Mission Statement: </strong>{habitInfo.missionStatement}</p>
+                    <p><strong>{title}</strong></p>
+                    <p>{missionStatement}</p>
                 </div>
             }
-
-            <EditValue setShowEditor={setShowEditor}/>
+            {variant !== "NoEdit" ? <EditValue setShowEditor={setShowEditor}/> : ""}
         </div>
     )
 }

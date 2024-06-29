@@ -5,7 +5,7 @@ import addItemIntoFirestore from "../../Utils/addItemIntoFirestore.js";
 import queryItemFromFirestore from "../../Utils/queryItemFromFirestore.js";
 import checkHabitExists from "./Utils/checkHabitExists.js";
 import {produce} from "immer";
-import {HabitsListContext} from "../Contexts/HabitsListContext.js";
+import {HabitsListContext} from "../Contexts/HabitsListContext.jsx";
 
 export default function AddHabit() {
     const stateManager = useContext(HabitsListContext);

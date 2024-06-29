@@ -1,7 +1,8 @@
 import getUserIdToken from "./getUserIdToken.js";
 import {API_URL} from "../../main.jsx";
 
-export default async function backendMarkIncomplete(habitId) {
+export default async function backendUpdateLogs(logId, title, content) {
+    console.log(logId);
     let status = "Loading";
     let response = null;
     console.log("sending request to backend server");
@@ -10,23 +11,21 @@ export default async function backendMarkIncomplete(habitId) {
         console.log(idToken.data);
         return
     }
-    console.log(idToken.data);
-    await fetch(`${API_URL}/api/habits/incomplete/`, {
+    await fetch(`${API_URL}/api/logs/update/`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
             "Authorization": idToken.data
         },
-        body: JSON.stringify({"habitId": habitId})
+        body: JSON.stringify({"logId": logId, "title": title, "content": content})
     }).then(async e => {
-        if (e.status !== 200) {
-            status = "Error"
-            response = await e.json();
-        } else {
-            response = e
-            status = "Success";
-        }
+        console.log(e);
+        e.status === 200 ? status = "Success" : status = "Error";
+        response = await e.json();
+    }).catch(e => {
+        console.log(e);
+        status = "Error";
+        response = e.message;
     })
-
     return {"status": status, "data": response};
 }

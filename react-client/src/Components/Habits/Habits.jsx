@@ -4,7 +4,7 @@ import Loading from "../Loading.jsx";
 import getItemFromFirestore from "../../Utils/getItemFromFirestore.js";
 import AddHabit from "./AddHabit.jsx";
 import HabitsList from "./HabitsList.jsx";
-import {HabitsListContext} from "../Contexts/HabitsListContext.js";
+import {HabitsListContext} from "../Contexts/HabitsListContext.jsx";
 
 export default function Habits() {
     const [userData, setUserData] = useState(null);

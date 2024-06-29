@@ -10,7 +10,7 @@ export default async function backendAddLogs(habitId, logTitle, logContent) {
         console.log(idToken.data);
         return
     }
-    await fetch(`${API_URL}/api/log/add`, {
+    await fetch(`${API_URL}/api/logs/add`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",

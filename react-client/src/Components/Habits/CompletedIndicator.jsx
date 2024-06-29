@@ -1,5 +1,5 @@
 import {useContext, useState} from "react";
-import {HabitsListContext} from "../Contexts/HabitsListContext.js";
+import {HabitsListContext} from "../Contexts/HabitsListContext.jsx";
 import {produce} from "immer";
 import backendMarkComplete from "../../Utils/backend/backendMarkComplete.js";
 import backendMarkIncomplete from "../../Utils/backend/backendMarkIncomplete.js";

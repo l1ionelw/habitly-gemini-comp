@@ -8,13 +8,13 @@ const getItemFromFirestore = require("../Utils/getItemFromFirestore");
 const {DateTime} = require("luxon");
 const updateItemInsideFirestore = require("../Utils/updateItemInFirestore");
 const addItemIntoFirestore = require("../Utils/addItemIntoFirestore");
-const {query} = require("express");
-const checkHabitCompleted = require("../Utils/checkHabitCompleted");
 const logEntryAllowed = require("../Utils/logEntryAllowed");
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
 });
 const db = getFirestore();
+const LOG_TITLE_MAX_CHARS = 45;
+const LOG_CONTENT_MAX_CHARS = 700;
 
 function verifyIdToken(req, res, next) {
     if (!req.headers.authorization) {
@@ -36,7 +36,7 @@ router.get('/', (req, res) => {
     res.send("EXPRESS API! YAYYYYYYYYY!");
 });
 
-router.post("/completehabit/", verifyIdToken, async (req, res, next) => {
+router.post("/habits/complete/", verifyIdToken, async (req, res, next) => {
     const uid = req.body.uid;
     const habitId = req.body.habitId;
     console.log(uid);
@@ -86,7 +86,7 @@ router.post("/completehabit/", verifyIdToken, async (req, res, next) => {
     }
 })
 
-router.post("/incomplete/", verifyIdToken, async (req, res, next) => {
+router.post("/habits/incomplete/", verifyIdToken, async (req, res, next) => {
     const uid = req.body.uid;
     const habitId = req.body.habitId;
     console.log(habitId);
@@ -127,27 +127,26 @@ router.post("/incomplete/", verifyIdToken, async (req, res, next) => {
     }
 })
 
-router.post("/log/add/", verifyIdToken, async (req, res, next) => {
-    // TODO: verify server side if allowed to add logs today
-    const TITLE_MAX_CHARS = 45;
-    const CONTENT_MAX_CHARS = 700;
+router.post("/logs/add/", verifyIdToken, async (req, res, next) => {
 
     const uid = req.body.uid;
-    const title = req.body.title;
-    const content = req.body.content;
+    const title = req.body.title.trim();
+    const content = req.body.content.trim();
     const habitId = req.body.habitId;
 
-    if (title > TITLE_MAX_CHARS || content > CONTENT_MAX_CHARS) {
+    // character count requirements
+    if (title > LOG_TITLE_MAX_CHARS || content > LOG_CONTENT_MAX_CHARS) {
         return next({"message": "Character limits exceeded for log content or title.", "statusCode": 403})
     }
 
+    // get user time zone
     let userTimeZone = await getItemFromFirestore(db, uid, "users");
     if (userTimeZone.status !== "Success") {
         return next({"message": "An error occurred while fetching user profile", "statusCode": 424});
     }
     userTimeZone = userTimeZone.data.timezone;
-    console.log(userTimeZone);
 
+    // get habit document and verify ownership
     let habitDoc = await getItemFromFirestore(db, habitId, "habits");
     if (habitDoc.status !== "Success") {
         return next({"message": "An error occurred while fetching habits profile", "statusCode": 424});
@@ -157,20 +156,19 @@ router.post("/log/add/", verifyIdToken, async (req, res, next) => {
         return next({"message": "This document does not exist, or is not yours", "statusCode": 403})
     }
 
-    // verify habit can be done
+    // check if log can be added today (if there is a previous log made today)
     let lastSubmittedLog;
     const logsRef = db.collection("logs");
     await logsRef.where("ownerId", "==", uid).orderBy("createdAt", "desc").limit(1).get().then(querySnapshot => {
-        querySnapshot.forEach((doc)=> {
+        querySnapshot.forEach((doc) => {
             console.log(doc.data());
             lastSubmittedLog = doc.data();
         })
     });
 
-    console.log("last submitted log")
     console.log(lastSubmittedLog);
 
-    // check log entry allowed
+    // verify if operation is allowed today
     if (!logEntryAllowed(lastSubmittedLog, userTimeZone, habitDoc.records)) {
         return next({"message": "This operation is not permitted", "statusCode": 403});
     }
@@ -187,6 +185,41 @@ router.post("/log/add/", verifyIdToken, async (req, res, next) => {
         data.id = resp.data;
         data.createdAt = {"seconds": DateTime.now().toSeconds()}
         return res.send(data)
+    })
+})
+
+router.post("/logs/update/", verifyIdToken, async (req, res, next) => {
+    const uid = req.body.uid;
+    const logId = req.body.logId;
+    const new_title = req.body.title.trim();
+    const new_content = req.body.content.trim();
+    // character count requirements
+    if (new_title > LOG_TITLE_MAX_CHARS || new_content > LOG_CONTENT_MAX_CHARS) {
+        return next({"message": "Character limits exceeded for log content or title.", "statusCode": 403})
+    }
+    // get most recent log
+    let lastSubmittedLog;
+    const logsRef = db.collection("logs");
+    await logsRef.where("ownerId", "==", uid).orderBy("createdAt", "desc").limit(1).get().then(querySnapshot => {
+        querySnapshot.forEach((doc) => {
+            lastSubmittedLog = doc.data();
+            lastSubmittedLog.id = doc.id;
+        })
+    });
+    if (!lastSubmittedLog) {
+        return next({"message": "This log doesn't exist", "statusCode": 403})
+    }
+    // check if log.id matches logId
+    if (lastSubmittedLog.id !== logId) {
+        return next({"message": "This document does not exist, or is not yours", "statusCode": 403})
+    }
+    // update log contents with new contents
+    const data = {
+        "title": new_title,
+        "content": new_content
+    }
+    await updateItemInsideFirestore(db, "logs", logId, data).then(e=>{
+        return res.send({"status": "Success", "message": "Succesfully done"})
     })
 })
 

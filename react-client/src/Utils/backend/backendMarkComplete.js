@@ -10,7 +10,7 @@ export default async function backendMarkComplete(habitId) {
         console.log(idToken.data);
         return
     }
-    await fetch(`${API_URL}/api/completehabit/`, {
+    await fetch(`${API_URL}/api/habits/complete/`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
