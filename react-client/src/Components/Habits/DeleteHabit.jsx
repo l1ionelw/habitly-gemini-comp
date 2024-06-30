@@ -7,9 +7,11 @@ export default function DeleteHabit({habitName}) {
         }
     }
 
-    function handleDelete() {
+    async function handleDelete() {
         console.log("handling delete: ", habitName);
-        deleteDataFromFirestore("habits", habitName);
+        await deleteDataFromFirestore("habits", habitName).then(e => {
+            console.log(e);
+        });
     }
 
     return (<div>

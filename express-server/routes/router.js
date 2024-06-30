@@ -9,6 +9,7 @@ const {DateTime} = require("luxon");
 const updateItemInsideFirestore = require("../Utils/updateItemInFirestore");
 const addItemIntoFirestore = require("../Utils/addItemIntoFirestore");
 const logEntryAllowed = require("../Utils/logEntryAllowed");
+const deleteItemFromFirestore = require("../Utils/deleteItemFromFirestore");
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
 });
@@ -128,7 +129,6 @@ router.post("/habits/incomplete/", verifyIdToken, async (req, res, next) => {
 })
 
 router.post("/logs/add/", verifyIdToken, async (req, res, next) => {
-
     const uid = req.body.uid;
     const title = req.body.title.trim();
     const content = req.body.content.trim();
@@ -159,7 +159,7 @@ router.post("/logs/add/", verifyIdToken, async (req, res, next) => {
     // check if log can be added today (if there is a previous log made today)
     let lastSubmittedLog;
     const logsRef = db.collection("logs");
-    await logsRef.where("ownerId", "==", uid).orderBy("createdAt", "desc").limit(1).get().then(querySnapshot => {
+    await logsRef.where("ownerId", "==", uid).where("habitOwner", "==", habitId).orderBy("createdAt", "desc").limit(1).get().then(querySnapshot => {
         querySnapshot.forEach((doc) => {
             console.log(doc.data());
             lastSubmittedLog = doc.data();
@@ -193,14 +193,16 @@ router.post("/logs/update/", verifyIdToken, async (req, res, next) => {
     const logId = req.body.logId;
     const new_title = req.body.title.trim();
     const new_content = req.body.content.trim();
+    const habitOwner = req.body.habitId;
     // character count requirements
-    if (new_title > LOG_TITLE_MAX_CHARS || new_content > LOG_CONTENT_MAX_CHARS) {
+    if (new_title.length > LOG_TITLE_MAX_CHARS || new_content.length > LOG_CONTENT_MAX_CHARS || new_title.length === 0) {
         return next({"message": "Character limits exceeded for log content or title.", "statusCode": 403})
     }
     // get most recent log
     let lastSubmittedLog;
+    // TODO: also query by habit id
     const logsRef = db.collection("logs");
-    await logsRef.where("ownerId", "==", uid).orderBy("createdAt", "desc").limit(1).get().then(querySnapshot => {
+    await logsRef.where("ownerId", "==", uid).where("habitOwner", "==", habitOwner).orderBy("createdAt", "desc").limit(1).get().then(querySnapshot => {
         querySnapshot.forEach((doc) => {
             lastSubmittedLog = doc.data();
             lastSubmittedLog.id = doc.id;
@@ -218,9 +220,57 @@ router.post("/logs/update/", verifyIdToken, async (req, res, next) => {
         "title": new_title,
         "content": new_content
     }
-    await updateItemInsideFirestore(db, "logs", logId, data).then(e=>{
-        return res.send({"status": "Success", "message": "Succesfully done"})
+    await updateItemInsideFirestore(db, "logs", logId, data).then(e => {
+        return res.send({"status": "Success", "message": "Successfully done"})
     })
 })
 
+
+router.post("/logs/delete/", verifyIdToken, async (req, res, next) => {
+    const uid = req.body.uid;
+    const habitOwner = req.body.habitId;
+    console.log("Deleting log");
+    console.log(uid);
+    console.log(habitOwner);
+
+    let userTimeZone = await getItemFromFirestore(db, uid, "users");
+    if (userTimeZone.status !== "Success") {
+        return next({"message": "An error occurred while fetching user profile", "statusCode": 424});
+    }
+    userTimeZone = userTimeZone.data.timezone;
+    console.log(userTimeZone);
+
+    let lastSubmittedLog;
+    const logsRef = db.collection("logs");
+    await logsRef.where("ownerId", "==", uid).where("habitOwner", "==", habitOwner).orderBy("createdAt", "desc").limit(1).get().then(querySnapshot => {
+        querySnapshot.forEach((doc) => {
+            lastSubmittedLog = doc.data();
+            lastSubmittedLog.id = doc.id;
+        })
+    });
+    console.log(lastSubmittedLog);
+    if (!lastSubmittedLog) {
+        return next({"message": "This log doesn't exist", "statusCode": 403})
+    }
+
+    const currentDay = DateTime.now().setZone(userTimeZone).startOf("day");
+    const logCreatedDay = DateTime.fromSeconds(lastSubmittedLog.createdAt.seconds, {zone: userTimeZone}).startOf("day");
+    console.log(currentDay);
+    console.log(logCreatedDay);
+
+    if (logCreatedDay.equals(currentDay)) {
+        console.log("can be deleted");
+        let response;
+        await deleteItemFromFirestore(db, "logs", lastSubmittedLog.id).then(e => {
+            response = e;
+        });
+        console.log(response);
+        if (response.status === "Success") {
+            return res.send({"status": "Success", "message": "Deleted Successfully"});
+        }
+        return next({"message": "An error occurred while trying to delete the document"});
+    }
+    console.log("cant be deleted");
+    return next({"message": "This operation is invalid", "statusCode": 403});
+})
 module.exports = router;
