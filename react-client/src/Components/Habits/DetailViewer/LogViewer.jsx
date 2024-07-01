@@ -3,6 +3,7 @@ import {DateTime} from "luxon";
 import backendUpdateLogs from "../../../Utils/backend/backendUpdateLogs.js";
 import {produce} from "immer";
 import backendDeleteLogs from "../../../Utils/backend/backendDeleteLogs.js";
+import CompletedIndicator from "../CompletedIndicator.jsx";
 
 export default function LogViewer({habitId, logs, setLogs}) {
     async function updateLogContent(updatedTitle, updatedContent) {

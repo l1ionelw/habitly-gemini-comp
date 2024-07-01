@@ -1,14 +1,11 @@
 import {useContext, useState} from "react";
-import {HabitsListContext} from "../Contexts/HabitsListContext.jsx";
 import {produce} from "immer";
 import backendMarkComplete from "../../Utils/backend/backendMarkComplete.js";
 import backendMarkIncomplete from "../../Utils/backend/backendMarkIncomplete.js";
 import checkHabitCompleted from "../../Utils/habits/checkHabitCompleted.js";
 
-export default function CompletedIndicator({habitId}) {
-    const habitsList = useContext(HabitsListContext).state;
-    const setHabits = useContext(HabitsListContext).setter;
-    const myHabit = habitsList.filter((habit) => habit.id === habitId)[0];
+export default function CompletedIndicator({habitId, variant, habitsList, setHabits}) {
+    const myHabit = variant === "HabitDetail" ? habitsList : habitsList.filter((habit) => habit.id === habitId)[0];
     const records = myHabit.records;
     const [habitCompleted, setHabitCompleted] = useState(checkHabitCompleted(records));
 
@@ -27,9 +24,15 @@ export default function CompletedIndicator({habitId}) {
             newRecords = await e.data.json().then(e => newRecords = e.data);
         })
         console.log(newRecords);
-        setHabits(produce(draft => {
-            draft[findHabitIndex()].records = newRecords;
-        }))
+        if (variant === "HabitDetail") {
+            setHabits(produce(draft => {
+                draft.records = newRecords
+            }))
+        } else {
+            setHabits(produce(draft => {
+                draft[findHabitIndex()].records = newRecords;
+            }))
+        }
         setHabitCompleted(produce(draft => !draft))
     }
 
