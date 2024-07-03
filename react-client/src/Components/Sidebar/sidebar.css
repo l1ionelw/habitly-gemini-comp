@@ -1,0 +1,43 @@
+div a, div a:hover, div a:visited {
+    border: none;
+    outline: none;
+    text-decoration: none;
+    color: inherit;
+}
+
+.sidebar {
+    font-family: "Montserrat", sans-serif;
+    background-color: lightgrey;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 250px;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    overflow: auto;
+}
+
+.sidebar-spacer {
+    flex-grow: 1;
+}
+
+.sidebar-content {
+    margin-left: 264px;
+    box-sizing: inherit;
+    width: fit-content;
+    white-space: initial;
+}
+
+.sidebar-selection {
+    padding: 1rem;
+    margin-left: 0.3rem;
+    margin-right: 0.3rem;
+}
+
+.selected {
+    background-color: lightblue;
+    border-radius: 0.44rem;
+}
+

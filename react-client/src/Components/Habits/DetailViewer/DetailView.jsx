@@ -82,6 +82,10 @@ export default function DetailView() {
             startRange = lastCompleted;
             compDate = lastCompleted;
         }
+        if (!compDate) {
+            console.log("Habit wasn't completed today or yesterday, no streak");
+            return 0
+        }
 
         for (let i = startIndex; i < habitInfo.records.length; i++) {
             let thisDate = DateTime.fromMillis(habitInfo.records[i]).startOf("day");

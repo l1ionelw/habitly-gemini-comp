@@ -5,6 +5,7 @@ import Habits from "./Components/Habits/Habits.jsx";
 import React from "react";
 import Protected from "./Components/Protected.jsx";
 import DetailView from "./Components/Habits/DetailViewer/DetailView.jsx";
+import Sidebar from "./Components/Sidebar/Sidebar.jsx";
 
 export const BrowserRoutes = createBrowserRouter([
     {
@@ -17,10 +18,10 @@ export const BrowserRoutes = createBrowserRouter([
     },
     {
         path: "/habits/",
-        element: <Protected><Habits/></Protected>,
+        element: <Protected><Sidebar><Habits/></Sidebar></Protected>,
     },
     {
         path: "/habits/detail/:habitId/",
-        element: <Protected><DetailView/></Protected>
+        element: <Protected><Sidebar><DetailView/></Sidebar></Protected>
     }
 ])
