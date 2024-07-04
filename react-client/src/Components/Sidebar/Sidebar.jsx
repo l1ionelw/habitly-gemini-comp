@@ -17,7 +17,7 @@ export default function Sidebar({children}) {
 
     return (
         <>
-            <div className={"sidebar"}>
+            <div className={"sidebar unhighlight"}>
                 <h1 className={"ml-3"}>Habitly</h1>
                 <a href={"/"}>
                     <div className={`sidebar-selection ${shouldSelect("/")}`}>Home</div>
@@ -34,7 +34,7 @@ export default function Sidebar({children}) {
                 <a href={"/ai"}>
                     <div className={`sidebar-selection ${shouldSelect("/ai")}`}>AI</div>
                 </a>
-                <div className={"sidebar-spacer"}></div>
+                <div className={"flex-spacer"}></div>
                 <a href={"/logout"}>
                     <div className={`mb-2 sidebar-selection ${shouldSelect("/logout")}`}>Log Out</div>
                 </a>

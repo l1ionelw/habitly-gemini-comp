@@ -6,8 +6,10 @@ import queryItemFromFirestore from "../../Utils/queryItemFromFirestore.js";
 import checkHabitExists from "./Utils/checkHabitExists.js";
 import {produce} from "immer";
 import {HabitsListContext} from "../Contexts/HabitsListContext.jsx";
+import Card from "../UI/Card.jsx";
+import Button from "../UI/Button.jsx";
 
-export default function AddHabit() {
+export default function AddHabit({showEditor, callback}) {
     const stateManager = useContext(HabitsListContext);
     const userId = useContext(Auth).user.uid;
     const [title, setTitle] = useState("");
@@ -38,6 +40,7 @@ export default function AddHabit() {
         } else {
             setErrorMessage("An error occurred: This habit already exists");
         }
+        callback();
     }
 
     function handleAddSuccess(data, docId) {
@@ -52,24 +55,36 @@ export default function AddHabit() {
 
 
     return (
-        <div>
-            <h2>Add a habit</h2>
-            <form onSubmit={onSubmit}>
-                <input
-                    placeholder={"title"}
-                    value={title} onChange={(e) => setTitle(e.target.value)}
-                    maxLength={HABIT_TITLE_MAX_LENGTH}
-                />
-                <br/>
-                <input placeholder={"mission statement"}
-                       value={missionStatement}
-                       onChange={(e) => setMissionStatement(e.target.value)}
-                       maxLength={HABIT_MISSIONSTATEMENT_MAX_LENGTH}
-                />
-                <br/>
-                <input type={"submit"} value={"Add new habit"}/>
-            </form>
-            <div hidden={errorMessage === ""}>{errorMessage}</div>
+        <div hidden={!showEditor} className={"centered-xy"}
+             style={{backgroundColor: "lightblue", padding: "1rem 0.5rem", borderRadius: "0.2rem"}}>
+
+
+            <Card>
+                <h3>Add a habit</h3>
+                <form onSubmit={onSubmit}>
+                    <div className={'flex flex-col gap-y-1'}>
+                        <input
+                            placeholder={"title"}
+                            value={title} onChange={(e) => setTitle(e.target.value)}
+                            maxLength={HABIT_TITLE_MAX_LENGTH}
+                            className={"styled-input"}
+                        />
+                        <textarea placeholder={"mission statement"}
+                                  value={missionStatement}
+                                  onChange={(e) => setMissionStatement(e.target.value)}
+                                  maxLength={HABIT_MISSIONSTATEMENT_MAX_LENGTH}
+                                  className={"styled-textarea"}
+                        />
+                    </div>
+                    <br/>
+                    <div className={"flex"}>
+                        <Button text={"Cancel"} size={10} onClick={callback} className={"ml-8"} />
+                        <div className={"flex-spacer"}></div>
+                        <Button text={"Add"} size={10} onClick={onSubmit} className={"mr-8"}/>
+                    </div>
+                </form>
+                <div hidden={errorMessage === ""}>{errorMessage}</div>
+            </Card>
         </div>
     )
 }

@@ -1,0 +1,9 @@
+.styled-button {
+    padding: 1px 2rem;
+    background-color: lightgray;
+    border-radius: 0.4rem;
+    display: inline-block;
+    font-family: "Montserrat", sans-serif;
+    cursor: pointer;
+    user-select: none;
+}

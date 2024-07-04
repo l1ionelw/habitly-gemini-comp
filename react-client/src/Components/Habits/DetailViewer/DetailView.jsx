@@ -56,6 +56,7 @@ export default function DetailView() {
     }
 
     function getDaysCompleted() {
+        if (!habitInfo.records) return 0;
         return habitInfo.records.length;
     }
 
@@ -68,6 +69,9 @@ export default function DetailView() {
     }
 
     function getCurrentStreak() {
+        if (habitInfo.records.length === 0) {
+            return "0d";
+        }
         // TODO: check this later
         let startRange, endRange;
         let today = DateTime.now().startOf("day");
@@ -99,6 +103,9 @@ export default function DetailView() {
     }
 
     function getLongestStreak() {
+        if (habitInfo.records.length === 0) {
+            return 0;
+        }
         // TODO: check this later
         let longestStreak = 0;
         let startRange = DateTime.fromMillis(habitInfo.records[0]).startOf("day");
@@ -125,9 +132,9 @@ export default function DetailView() {
             <div>
                 <h1>Habit Details</h1>
                 <HabitDetailEditor title={habitInfo.title} missionStatement={habitInfo.missionStatement}
-                                   callback={updateHabitDetails}/>
+                                   callback={updateHabitDetails} />
                 <CompletedIndicator habitId={habitId} habitsList={habitInfo} setHabits={setHabitInfo}
-                                    variant={"HabitDetail"}/>
+                                    variant={"HabitDetail"} />
                 <DeleteHabit documentId={habitId} onClick={() => setRedirect("/")}/>
 
                 <p>{JSON.stringify(habitInfo)}</p>

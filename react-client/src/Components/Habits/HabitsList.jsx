@@ -29,11 +29,12 @@ export default function HabitsList() {
                 <br/>
                 <h1>My Habits</h1>
                 {habitsList.map((habit) => {
+                    console.log(habit.id)
                     return <div>
                         <h3><a href={`/habits/detail/${habit.id}`}>{habit.title}</a></h3>
                         <p>{JSON.stringify(habit)}</p>
                         <CompletedIndicator habitId={habit.id} habitsList={habitsList} setHabits={setHabitsList}/>
-                        <DeleteHabit documentId={habit.id} />
+                        <DeleteHabit habitId={habit.id} />
                     </div>
                 })}
             </div>
