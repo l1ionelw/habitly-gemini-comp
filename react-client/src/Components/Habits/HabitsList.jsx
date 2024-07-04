@@ -5,6 +5,8 @@ import queryItemFromFirestore from "../../Utils/queryItemFromFirestore.js";
 import DeleteHabit from "./DeleteHabit.jsx";
 import CompletedIndicator from "./CompletedIndicator.jsx";
 import {HabitsListContext} from "../Contexts/HabitsListContext.jsx";
+import {produce} from "immer";
+import HabitCard from "../UI/HabitCard.jsx";
 
 export default function HabitsList() {
     const userId = useContext(Auth).user.uid;
@@ -18,11 +20,19 @@ export default function HabitsList() {
                 setHabitsList("No Habits");
             }
         });
-    }, [])
+    }, []);
+
 
     if (habitsList === "No Habits") {
         return <div>You have no habits. </div>
     }
+
+    function updateHabitListAfterDelete(id) {
+        console.log("deleting")
+        setHabitsList(produce((draft) => draft.filter((item) => item.id !== id)
+        ));
+    }
+
     if (habitsList) {
         return (
             <div>
@@ -31,10 +41,15 @@ export default function HabitsList() {
                 {habitsList.map((habit) => {
                     console.log(habit.id)
                     return <div>
-                        <h3><a href={`/habits/detail/${habit.id}`}>{habit.title}</a></h3>
-                        <p>{JSON.stringify(habit)}</p>
+                        <a href={`/habits/detail/${habit.id}`} className={"unstyled-href"}>
+                            <HabitCard>
+                                <h4>{habit.title}</h4>
+                                <p>{habit.missionStatement}</p>
+                            </HabitCard>
+                        </a>
+
                         <CompletedIndicator habitId={habit.id} habitsList={habitsList} setHabits={setHabitsList}/>
-                        <DeleteHabit habitId={habit.id} />
+                        <DeleteHabit habitId={habit.id} callback={() => updateHabitListAfterDelete(habit.id)}/>
                     </div>
                 })}
             </div>

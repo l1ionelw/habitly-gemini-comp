@@ -22,7 +22,7 @@ export default function Habits() {
 
     if (userData) {
         return (
-            <div>
+            <div className={"pt-5"}>
                 <Button text={"Add Habit"} size={15} onClick={()=>setShowEditor(!showEditor)}/>
                 <div className={"text-emerald-600"}>
                     <h1>{userData.name}</h1>

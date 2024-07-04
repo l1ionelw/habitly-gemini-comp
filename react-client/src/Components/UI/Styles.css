@@ -7,3 +7,14 @@
     cursor: pointer;
     user-select: none;
 }
+.card {
+    border-radius: 0.13rem;
+    background-color: lightblue;
+    z-index: 2;
+}
+.habit-card {
+    font-family: "Montserrat", sans-serif;
+    border-radius: 0.4rem;
+    background-color: lightblue;
+    padding: 0.5rem 1rem;
+}

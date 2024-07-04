@@ -1,6 +1,6 @@
 import deleteDataFromFirestore from "../../Utils/deleteItemFromFirestore.js";
 
-export default function DeleteHabit({habitId}) {
+export default function DeleteHabit({habitId, callback}) {
     function showDeleteConfirmation() {
         if (confirm("Are you sure you want to delete this entry? This action cannot be undone. ")) {
             handleDelete();
@@ -12,6 +12,7 @@ export default function DeleteHabit({habitId}) {
         await deleteDataFromFirestore("habits", habitId).then(e => {
             console.log(e);
         });
+        callback();
     }
 
     return (

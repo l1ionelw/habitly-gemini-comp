@@ -25,3 +25,7 @@
     height: 12rem;
     border: none;
 }
+
+.unstyled-href {
+    text-decoration: none;
+}
