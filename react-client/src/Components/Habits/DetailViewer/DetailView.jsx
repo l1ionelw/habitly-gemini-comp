@@ -135,7 +135,7 @@ export default function DetailView() {
                                    callback={updateHabitDetails} />
                 <CompletedIndicator habitId={habitId} habitsList={habitInfo} setHabits={setHabitInfo}
                                     variant={"HabitDetail"} />
-                <DeleteHabit documentId={habitId} callback={() => setRedirect("/")}/>
+                <DeleteHabit habitId={habitId} callback={() => setRedirect("/")}/>
 
                 <p>{JSON.stringify(habitInfo)}</p>
 

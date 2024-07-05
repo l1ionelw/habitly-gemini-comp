@@ -1,6 +1,12 @@
 @tailwind components;
 @tailwind utilities;
 
+.nofocus {
+    filter: grayscale(0.5);
+    cursor: none;
+    pointer-events: none;
+}
+
 .centered-xy {
     position: absolute;
     left: 50%;

@@ -3,19 +3,12 @@ import {produce} from "immer";
 import backendMarkComplete from "../../Utils/backend/backendMarkComplete.js";
 import backendMarkIncomplete from "../../Utils/backend/backendMarkIncomplete.js";
 import checkHabitCompleted from "../../Utils/habits/checkHabitCompleted.js";
+import getHabitIndexById from "./Utils/getHabitIndexById.jsx";
 
-export default function CompletedIndicator({habitId, variant, habitsList, setHabits}) {
+export default function CompletedIndicator({children, habitId, variant, habitsList, setHabits}) {
     const myHabit = variant === "HabitDetail" ? habitsList : habitsList.filter((habit) => habit.id === habitId)[0];
     const records = myHabit.records;
     const [habitCompleted, setHabitCompleted] = useState(checkHabitCompleted(records));
-
-    function findHabitIndex() {
-        for (let i in habitsList) {
-            if (habitsList[i].id === habitId) {
-                return i;
-            }
-        }
-    }
 
     async function updateNewState(functionCallback) {
         let newRecords;
@@ -29,8 +22,9 @@ export default function CompletedIndicator({habitId, variant, habitsList, setHab
                 draft.records = newRecords
             }))
         } else {
+            const index = getHabitIndexById(habitsList, habitId);
             setHabits(produce(draft => {
-                draft[findHabitIndex()].records = newRecords;
+                draft[index].records = newRecords;
             }))
         }
         setHabitCompleted(produce(draft => !draft))
@@ -42,10 +36,8 @@ export default function CompletedIndicator({habitId, variant, habitsList, setHab
     }
 
     return (
-        <div>
-            <p>{habitCompleted ? "Habit is completed" : "Habit not completed"}</p>
-            <button
-                onClick={toggleHabit}>{habitCompleted ? "Incomplete Habit" : "Complete Habit"}</button>
+        <div onClick={toggleHabit} className={"cursor-pointer"}>
+            {children}
         </div>
     )
 }

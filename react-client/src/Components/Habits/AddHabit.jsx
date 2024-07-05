@@ -3,18 +3,17 @@ import {Auth} from "../Contexts/AuthContext.jsx";
 import {serverTimestamp} from "firebase/firestore";
 import addItemIntoFirestore from "../../Utils/addItemIntoFirestore.js";
 import queryItemFromFirestore from "../../Utils/queryItemFromFirestore.js";
-import checkHabitExists from "./Utils/checkHabitExists.js";
+import checkHabitExists from "./Utils/checkHabitExists.jsx";
 import {produce} from "immer";
 import {HabitsListContext} from "../Contexts/HabitsListContext.jsx";
 import Card from "../UI/Card.jsx";
 import Button from "../UI/Button.jsx";
 
-export default function AddHabit({showEditor, callback}) {
+export default function AddHabit({showEditor, setErrorMessage, callback}) {
     const stateManager = useContext(HabitsListContext);
     const userId = useContext(Auth).user.uid;
     const [title, setTitle] = useState("");
     const [missionStatement, setMissionStatement] = useState("");
-    const [errorMessage, setErrorMessage] = useState("");
     const HABIT_TITLE_MAX_LENGTH = 45
     const HABIT_MISSIONSTATEMENT_MAX_LENGTH = 400;
 
@@ -78,12 +77,11 @@ export default function AddHabit({showEditor, callback}) {
                     </div>
                     <br/>
                     <div className={"flex"}>
-                        <Button text={"Cancel"} size={10} onClick={callback} className={"ml-8"} />
+                        <Button text={"Cancel"} size={10} onClick={callback} className={"ml-8"}/>
                         <div className={"flex-spacer"}></div>
                         <Button text={"Add"} size={10} onClick={onSubmit} className={"mr-8"}/>
                     </div>
                 </form>
-                <div hidden={errorMessage === ""}>{errorMessage}</div>
             </Card>
         </div>
     )

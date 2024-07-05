@@ -17,7 +17,7 @@ export default function Sidebar({children}) {
 
     return (
         <>
-            <div className={"sidebar unhighlight"}>
+            <div className={"sidebar"}>
                 <h1 className={"ml-3"}>Habitly</h1>
                 <a href={"/"}>
                     <div className={`sidebar-selection ${shouldSelect("/")}`}>Home</div>

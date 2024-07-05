@@ -12,6 +12,7 @@ export default function Habits() {
     const userId = useContext(Auth).user.uid;
     const [habitsList, setHabitsList] = useState();
     const [showEditor, setShowEditor] = useState(false);
+    const [errorMessage, setErrorMessage] = useState();
 
     useMemo(() => {
         getItemFromFirestore(userId, "users").then(data => {
@@ -22,16 +23,19 @@ export default function Habits() {
 
     if (userData) {
         return (
-            <div className={"pt-5"}>
-                <Button text={"Add Habit"} size={15} onClick={()=>setShowEditor(!showEditor)}/>
+            <div className={`pt-5`}>
+                <Button text={"Add Habit"} size={15} onClick={() => setShowEditor(!showEditor)}/>
+                <div hidden={errorMessage === ""}>{errorMessage}</div>
                 <div className={"text-emerald-600"}>
                     <h1>{userData.name}</h1>
                     <h3>{userData.email}</h3>
                 </div>
                 <div>
                     <HabitsListContext.Provider value={{state: habitsList, setter: setHabitsList}}>
-                        <AddHabit showEditor={showEditor} callback={() => setShowEditor(false)}/>
-                        <HabitsList/>
+                        <div className={`${showEditor ? "nofocus" : ""}`}>
+                            <HabitsList/>
+                        </div>
+                        <AddHabit showEditor={showEditor} setErrorMessage={setErrorMessage} callback={() => setShowEditor(false)}/>
                     </HabitsListContext.Provider>
                 </div>
             </div>

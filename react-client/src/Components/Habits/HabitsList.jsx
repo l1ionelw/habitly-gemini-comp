@@ -1,12 +1,11 @@
-import React, {useContext, useEffect, useState} from "react";
+import React, {useContext, useEffect} from "react";
 import {Auth} from "../Contexts/AuthContext.jsx";
 import Loading from "../Loading.jsx";
 import queryItemFromFirestore from "../../Utils/queryItemFromFirestore.js";
-import DeleteHabit from "./DeleteHabit.jsx";
 import CompletedIndicator from "./CompletedIndicator.jsx";
 import {HabitsListContext} from "../Contexts/HabitsListContext.jsx";
-import {produce} from "immer";
 import HabitCard from "../UI/HabitCard.jsx";
+import checkHabitCompleted from "../../Utils/habits/checkHabitCompleted.js";
 
 export default function HabitsList() {
     const userId = useContext(Auth).user.uid;
@@ -27,11 +26,7 @@ export default function HabitsList() {
         return <div>You have no habits. </div>
     }
 
-    function updateHabitListAfterDelete(id) {
-        console.log("deleting")
-        setHabitsList(produce((draft) => draft.filter((item) => item.id !== id)
-        ));
-    }
+    const generateHabitClassname = (habit) => `habit-hover-animation ${checkHabitCompleted(habit.records) ? "habit-completed" : "habit-incomplete"}`
 
     if (habitsList) {
         return (
@@ -40,17 +35,20 @@ export default function HabitsList() {
                 <h1>My Habits</h1>
                 {habitsList.map((habit) => {
                     console.log(habit.id)
-                    return <div>
-                        <a href={`/habits/detail/${habit.id}`} className={"unstyled-href"}>
-                            <HabitCard>
-                                <h4>{habit.title}</h4>
-                                <p>{habit.missionStatement}</p>
-                            </HabitCard>
-                        </a>
-
-                        <CompletedIndicator habitId={habit.id} habitsList={habitsList} setHabits={setHabitsList}/>
-                        <DeleteHabit habitId={habit.id} callback={() => updateHabitListAfterDelete(habit.id)}/>
-                    </div>
+                    return (
+                        <div className={"mb-3"}>
+                            <CompletedIndicator habitId={habit.id} habitsList={habitsList} setHabits={setHabitsList}>
+                                <HabitCard
+                                    className={generateHabitClassname(habit)}>
+                                    <h4>
+                                        <a href={`/habits/detail/${habit.id}`}
+                                           className={"unstyled-href"}>{habit.title}</a>
+                                    </h4>
+                                    <p className={"text-sm"}>{habit.missionStatement}</p>
+                                </HabitCard>
+                            </CompletedIndicator>
+                        </div>
+                    )
                 })}
             </div>
         )
