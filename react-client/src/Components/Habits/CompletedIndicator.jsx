@@ -30,7 +30,6 @@ export default function CompletedIndicator({children, habitId, variant, habitsLi
         setHabitCompleted(produce(draft => !draft))
     }
 
-
     async function toggleHabit() {
         await updateNewState(habitCompleted ? backendMarkIncomplete : backendMarkComplete);
     }

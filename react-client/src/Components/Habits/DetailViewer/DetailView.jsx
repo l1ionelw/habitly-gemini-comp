@@ -9,8 +9,12 @@ import AddLog from "./AddLog.jsx";
 import HabitDetailEditor from "./HabitDetailEditor.jsx";
 import {produce} from "immer";
 import updateItemInsideFirestore from "../../../Utils/updateItemInsideFirestore.js";
-import CompletedIndicator from "../CompletedIndicator.jsx";
+import ToggleHabitIndicator from "../CompletedIndicator.jsx";
 import {DateTime} from "luxon";
+import EditValue from "./EditValue.jsx";
+import Button from "../../UI/Button.jsx";
+import HabitCard from "../../UI/HabitCard.jsx";
+import checkHabitCompleted from "../../../Utils/habits/checkHabitCompleted.js";
 
 export default function DetailView() {
     const habitId = useParams().habitId;
@@ -19,8 +23,12 @@ export default function DetailView() {
     const [error, setError] = useState("");
     const [redirect, setRedirect] = useState("");
     const [logs, setLogs] = useState([]);
+    const [habitInfoEditor, setHabitInfoEditor] = useState(false);
+
+    const habitCardClassname = `mb-5 ${checkHabitCompleted(habitInfo?.records) ? "habit-completed" : "habit-incomplete"}`
 
     useEffect(() => {
+        console.log("fetching");
         getItemFromFirestore(habitId, "habits").then(resp => {
             if (resp.status === "Success") {
                 resp.data.id = habitId;
@@ -124,18 +132,40 @@ export default function DetailView() {
         return longestStreak;
     }
 
+    function toggleHabitInfoEditor() {
+        console.log(habitInfoEditor);
+        // using ! doesnt work for some reason, will check later;
+        if (habitInfoEditor) {
+            setHabitInfoEditor(false)
+        } else {
+            setHabitInfoEditor(true);
+        }
+    }
+
     if (redirect) {
         return <Navigate to={redirect}/>
     }
     if (habitInfo) {
         return (
-            <div>
-                <h1>Habit Details</h1>
-                <HabitDetailEditor title={habitInfo.title} missionStatement={habitInfo.missionStatement}
-                                   callback={updateHabitDetails} />
-                <CompletedIndicator habitId={habitId} habitsList={habitInfo} setHabits={setHabitInfo}
-                                    variant={"HabitDetail"} />
-                <DeleteHabit habitId={habitId} callback={() => setRedirect("/")}/>
+            <div className={"pt-4"}>
+                {habitInfoEditor && (
+                    <HabitDetailEditor title={habitInfo.title} missionStatement={habitInfo.missionStatement}
+                                       showEditor={habitInfoEditor} setShowEditor={setHabitInfoEditor}
+                                       callback={updateHabitDetails}/>)
+                }
+                {!habitInfoEditor && (<div><HabitCard className={habitCardClassname}><h1>{habitInfo.title}</h1>
+                    <p>{habitInfo.missionStatement}</p></HabitCard></div>)}
+                {checkHabitCompleted(habitInfo.records) ? "Habit is completed today" : "Habit is not completed"}
+                <div className={"flex flex-row gap-x-2 mt-4"}>
+                    <ToggleHabitIndicator habitId={habitId} habitsList={habitInfo} setHabits={setHabitInfo}
+                                        variant={"HabitDetail"}>
+                        <Button text={"Toggle Habit"}/>
+                    </ToggleHabitIndicator>
+                    <EditValue setShowEditor={setHabitInfoEditor}
+                               callback={toggleHabitInfoEditor}/>
+                    <DeleteHabit habitId={habitId} callback={() => setRedirect("/")}/>
+                </div>
+
 
                 <p>{JSON.stringify(habitInfo)}</p>
 

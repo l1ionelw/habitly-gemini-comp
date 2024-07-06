@@ -1,4 +1,5 @@
 import deleteDataFromFirestore from "../../Utils/deleteItemFromFirestore.js";
+import Button from "../UI/Button.jsx";
 
 export default function DeleteHabit({habitId, callback}) {
     function showDeleteConfirmation() {
@@ -17,7 +18,7 @@ export default function DeleteHabit({habitId, callback}) {
 
     return (
         <div>
-            <button onClick={showDeleteConfirmation}>Delete Habit</button>
+            <Button text={"Delete Habit"} onClick={showDeleteConfirmation}></Button>
         </div>
     )
 }

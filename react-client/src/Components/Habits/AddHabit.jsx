@@ -45,7 +45,6 @@ export default function AddHabit({showEditor, setErrorMessage, callback}) {
     function handleAddSuccess(data, docId) {
         setTitle("");
         setMissionStatement("");
-        setErrorMessage("Operation successful!");
         data.id = docId;
         stateManager.setter(produce(draft => {
             draft.unshift(data);
@@ -77,9 +76,9 @@ export default function AddHabit({showEditor, setErrorMessage, callback}) {
                     </div>
                     <br/>
                     <div className={"flex"}>
-                        <Button text={"Cancel"} size={10} onClick={callback} className={"ml-8"}/>
+                        <Button text={"Cancel"} size={15} onClick={callback} className={"ml-8"}/>
                         <div className={"flex-spacer"}></div>
-                        <Button text={"Add"} size={10} onClick={onSubmit} className={"mr-8"}/>
+                        <Button text={"Add"} size={15} onClick={onSubmit} className={"mr-8"}/>
                     </div>
                 </form>
             </Card>

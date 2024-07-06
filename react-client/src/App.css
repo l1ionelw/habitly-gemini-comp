@@ -1,8 +1,12 @@
 @tailwind components;
 @tailwind utilities;
 
+body {
+    font-family: "Montserrat", "sans-serif";
+}
+
 .nofocus {
-    filter: grayscale(0.5);
+    filter: blur(2px);
     cursor: none;
     pointer-events: none;
 }

@@ -6,6 +6,7 @@ import AddHabit from "./AddHabit.jsx";
 import HabitsList from "./HabitsList.jsx";
 import {HabitsListContext} from "../Contexts/HabitsListContext.jsx";
 import Button from "../UI/Button.jsx";
+import ContentBlurred from "../UI/ContentBlurred.jsx";
 
 export default function Habits() {
     const [userData, setUserData] = useState(null);
@@ -24,20 +25,19 @@ export default function Habits() {
     if (userData) {
         return (
             <div className={`pt-5`}>
-                <Button text={"Add Habit"} size={15} onClick={() => setShowEditor(!showEditor)}/>
-                <div hidden={errorMessage === ""}>{errorMessage}</div>
-                <div className={"text-emerald-600"}>
-                    <h1>{userData.name}</h1>
-                    <h3>{userData.email}</h3>
-                </div>
-                <div>
+                <ContentBlurred showEditor={showEditor}>
+                    <Button text={"Add Habit"} size={15} onClick={() => setShowEditor(!showEditor)}/>
+                    <div hidden={errorMessage === ""}>{errorMessage}</div>
+                    <div className={"text-emerald-600"}>
+                        <h1>{userData.name}</h1>
+                        <h3>{userData.email}</h3>
+                    </div>
                     <HabitsListContext.Provider value={{state: habitsList, setter: setHabitsList}}>
-                        <div className={`${showEditor ? "nofocus" : ""}`}>
-                            <HabitsList/>
-                        </div>
-                        <AddHabit showEditor={showEditor} setErrorMessage={setErrorMessage} callback={() => setShowEditor(false)}/>
+                        <HabitsList/>
                     </HabitsListContext.Provider>
-                </div>
+                </ContentBlurred>
+                <AddHabit showEditor={showEditor} setErrorMessage={setErrorMessage}
+                          callback={() => setShowEditor(false)}/>
             </div>
         )
     }
