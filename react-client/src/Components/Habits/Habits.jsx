@@ -32,11 +32,9 @@ export default function Habits() {
                         <h1>{userData.name}</h1>
                         <h3>{userData.email}</h3>
                     </div>
-                    <HabitsListContext.Provider value={{state: habitsList, setter: setHabitsList}}>
-                        <HabitsList/>
-                    </HabitsListContext.Provider>
+                    <HabitsList habitsList={habitsList} setHabitsList={setHabitsList}/>
                 </ContentBlurred>
-                <AddHabit showEditor={showEditor} setErrorMessage={setErrorMessage}
+                <AddHabit setter={setHabitsList} showEditor={showEditor} setErrorMessage={setErrorMessage}
                           callback={() => setShowEditor(false)}/>
             </div>
         )

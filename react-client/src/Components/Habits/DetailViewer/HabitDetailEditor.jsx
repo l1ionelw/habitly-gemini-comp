@@ -1,8 +1,9 @@
 import EditValue from "./EditValue.jsx";
 import {useState} from "react";
 import HabitCard from "../../UI/HabitCard.jsx";
+import Button from "../../UI/Button.jsx";
 
-export default function HabitDetailEditor({title, missionStatement, showEditor, setShowEditor, callback}) {
+export default function HabitDetailEditor({title, missionStatement, setShowEditor, callback}) {
     const [updatedTitle, setUpdatedTitle] = useState(title);
     const [updatedMissionStatement, setUpdatedMissionStatement] = useState(missionStatement);
 
@@ -12,23 +13,22 @@ export default function HabitDetailEditor({title, missionStatement, showEditor, 
         setShowEditor(false);
     }
 
-
+    // TODO: add max size limits
     return (
         <div>
-            <HabitCard>
             <form onSubmit={handleSubmit}>
                 <input placeholder={updatedTitle}
                        onChange={(e) => setUpdatedTitle(e.target.value)}
-                       className={"styled-input"}
+                       className={"styled-input bg-transparent"}
                 />
                 <br/>
                 <textarea placeholder={updatedMissionStatement}
-                       onChange={(e) => setUpdatedMissionStatement(e.target.value)}
+                          onChange={(e) => setUpdatedMissionStatement(e.target.value)}
+                          className={""}
                 />
-                <br/>
-                <input type={"submit"} value={"Update"}/>
+                <br/> <br/>
+                <Button text={"Update"} onClick={handleSubmit} size={13}/>
             </form>
-            </HabitCard>
         </div>
     )
 }

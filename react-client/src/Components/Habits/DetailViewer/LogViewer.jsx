@@ -4,6 +4,7 @@ import backendUpdateLogs from "../../../Utils/backend/backendUpdateLogs.js";
 import {produce} from "immer";
 import backendDeleteLogs from "../../../Utils/backend/backendDeleteLogs.js";
 import CompletedIndicator from "../CompletedIndicator.jsx";
+import Button from "../../UI/Button.jsx";
 
 export default function LogViewer({habitId, logs, setLogs}) {
     async function updateLogContent(updatedTitle, updatedContent) {
@@ -31,24 +32,31 @@ export default function LogViewer({habitId, logs, setLogs}) {
     }
 
     async function deleteLog() {
-        await backendDeleteLogs(habitId).then(resp => {
-            console.log(resp);
-            setLogs(produce(draft => {
-                draft.splice(0, 1)
-            }))
-        })
+        if (window.confirm("Are you sure? This action cannot be undone!")) {
+            await backendDeleteLogs(habitId).then(resp => {
+                console.log(resp);
+                setLogs(produce(draft => {
+                    draft.splice(0, 1)
+                }))
+            })
+        }
     }
 
     return (<div>
             {logs.map((content) =>
                 <>
                     <h3>{content.title}</h3>
-                    <p>{JSON.stringify(content)}</p>
-                    <HabitDetailEditor title={content.title} missionStatement={content.content}
-                                       callback={updateLogContent} variant={!logIsToday(content) ? "NoEdit" : ""}/>
-                    <div hidden={!logIsToday(content)}>
-                        <button onClick={deleteLog}>Delete Log</button>
-                    </div>
+                    <p>{content.content}</p>
+                    {logIsToday(content) &&
+                        <div>
+                            <HabitDetailEditor title={content.title} missionStatement={content.content}
+                                               callback={updateLogContent}
+                                               variant={!logIsToday(content) ? "NoEdit" : ""}/>
+                            <br/>
+                            <Button text={"Delete Log"} onClick={deleteLog} size={13}/>
+                        </div>
+                    }
+
                     <br/>
                 </>
             )

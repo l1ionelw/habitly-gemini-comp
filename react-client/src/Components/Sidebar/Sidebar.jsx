@@ -22,20 +22,20 @@ export default function Sidebar({children}) {
                 <a href={"/"}>
                     <div className={`sidebar-selection ${shouldSelect("/")}`}>Home</div>
                 </a>
-                <a href={"/habits"}>
+                <a href={"/habits/"}>
                     <div className={`sidebar-selection ${shouldSelect("/habits")}`}>Habits</div>
                 </a>
-                <a href={"/tasks"}>
+                <a href={"/tasks/"}>
                     <div className={`sidebar-selection ${shouldSelect("/tasks")}`}>Tasks</div>
                 </a>
-                <a href={"/log"}>
+                <a href={"/log/"}>
                     <div className={`sidebar-selection ${shouldSelect("/log")}`}>Log</div>
                 </a>
-                <a href={"/ai"}>
+                <a href={"/ai/"}>
                     <div className={`sidebar-selection ${shouldSelect("/ai")}`}>AI</div>
                 </a>
                 <div className={"flex-spacer"}></div>
-                <a href={"/logout"}>
+                <a href={"/logout/"}>
                     <div className={`mb-2 sidebar-selection ${shouldSelect("/logout")}`}>Log Out</div>
                 </a>
             </div>

@@ -9,8 +9,7 @@ import {HabitsListContext} from "../Contexts/HabitsListContext.jsx";
 import Card from "../UI/Card.jsx";
 import Button from "../UI/Button.jsx";
 
-export default function AddHabit({showEditor, setErrorMessage, callback}) {
-    const stateManager = useContext(HabitsListContext);
+export default function AddHabit({setter, showEditor, setErrorMessage, callback}) {
     const userId = useContext(Auth).user.uid;
     const [title, setTitle] = useState("");
     const [missionStatement, setMissionStatement] = useState("");
@@ -46,7 +45,7 @@ export default function AddHabit({showEditor, setErrorMessage, callback}) {
         setTitle("");
         setMissionStatement("");
         data.id = docId;
-        stateManager.setter(produce(draft => {
+        setter(produce(draft => {
             draft.unshift(data);
         }))
     }
@@ -55,8 +54,6 @@ export default function AddHabit({showEditor, setErrorMessage, callback}) {
     return (
         <div hidden={!showEditor} className={"centered-xy"}
              style={{backgroundColor: "lightblue", padding: "1rem 0.5rem", borderRadius: "0.2rem"}}>
-
-
             <Card>
                 <h3>Add a habit</h3>
                 <form onSubmit={onSubmit}>

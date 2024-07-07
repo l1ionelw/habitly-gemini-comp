@@ -7,16 +7,15 @@ import {HabitsListContext} from "../Contexts/HabitsListContext.jsx";
 import HabitCard from "../UI/HabitCard.jsx";
 import checkHabitCompleted from "../../Utils/habits/checkHabitCompleted.js";
 
-export default function HabitsList() {
+export default function HabitsList({habitsList, setHabitsList}) {
     const userId = useContext(Auth).user.uid;
-    const habitsList = useContext(HabitsListContext).state;
-    const setHabitsList = useContext(HabitsListContext).setter;
     useEffect(() => {
         queryItemFromFirestore("habits", "ownerId", userId).then(data => {
             if (data) {
                 setHabitsList(data);
+                if (data.length === 0) setHabitsList("No Habits");
             } else {
-                setHabitsList("No Habits");
+                setHabitsList("Error");
             }
         });
     }, []);
@@ -24,6 +23,9 @@ export default function HabitsList() {
 
     if (habitsList === "No Habits") {
         return <div>You have no habits. </div>
+    }
+    if (habitsList === "Error") {
+        return <div>An unknown error occurred</div>
     }
 
     const generateHabitClassname = (habit) => `habit-hover-animation ${checkHabitCompleted(habit.records) ? "habit-completed" : "habit-incomplete"}`
