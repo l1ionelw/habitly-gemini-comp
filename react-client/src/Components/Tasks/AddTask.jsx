@@ -4,8 +4,9 @@ import Button from "../UI/Button.jsx";
 import {serverTimestamp} from "firebase/firestore";
 import addItemIntoFirestore from "../../Utils/addItemIntoFirestore.js";
 import {Auth} from "../Contexts/AuthContext.jsx";
+import {produce} from "immer";
 
-export default function AddTask({showEditor, setErrorMessage, callback}) {
+export default function AddTask({setter, showEditor, setErrorMessage, callback}) {
     const userId = useContext(Auth).user.uid;
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
@@ -36,10 +37,9 @@ export default function AddTask({showEditor, setErrorMessage, callback}) {
         setTitle("");
         setContent("");
         data.id = docId;
-        // add to DOM here, maybe put callback outside of function
-        // stateManager.setter(produce(draft => {
-        //     draft.unshift(data);
-        // }))
+        setter(produce((draft) => {
+            draft.unshift(data)
+        }));
     }
 
 

@@ -3,7 +3,7 @@ import {Auth} from "../Contexts/AuthContext.jsx";
 import Loading from "../Loading.jsx";
 import queryItemFromFirestore from "../../Utils/queryItemFromFirestore.js";
 import CompletedIndicator from "./CompletedIndicator.jsx";
-import {HabitsListContext} from "../Contexts/HabitsListContext.jsx";
+import "../UI/Styles.css"
 import HabitCard from "../UI/HabitCard.jsx";
 import checkHabitCompleted from "../../Utils/habits/checkHabitCompleted.js";
 
@@ -28,7 +28,7 @@ export default function HabitsList({habitsList, setHabitsList}) {
         return <div>An unknown error occurred</div>
     }
 
-    const generateHabitClassname = (habit) => `habit-hover-animation ${checkHabitCompleted(habit.records) ? "habit-completed" : "habit-incomplete"}`
+    const generateHabitClassname = (habit) => `habit-hover-animation ${checkHabitCompleted(habit.records) ? "item-completed" : "item-incomplete"}`
 
     if (habitsList) {
         return (

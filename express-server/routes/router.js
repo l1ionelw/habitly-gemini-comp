@@ -191,14 +191,16 @@ router.post("/logs/add/", verifyIdToken, async (req, res, next) => {
 router.post("/logs/update/", verifyIdToken, async (req, res, next) => {
     const uid = req.body.uid;
     const logId = req.body.logId;
-    const new_title = req.body.title.trim();
-    const new_content = req.body.content.trim();
+    const new_title = req.body.title ? req.body.title : "";
+    const new_content = req.body.content ? req.body.content : "";
     const habitOwner = req.body.habitId;
+
     // character count requirements
     if (new_title.length > LOG_TITLE_MAX_CHARS || new_content.length > LOG_CONTENT_MAX_CHARS || new_title.length === 0) {
         return next({"message": "Character limits exceeded for log content or title.", "statusCode": 403})
     }
     // get most recent log
+    console.log("getting recent log");
     let lastSubmittedLog;
     // TODO: also query by habit id
     const logsRef = db.collection("logs");
@@ -215,11 +217,13 @@ router.post("/logs/update/", verifyIdToken, async (req, res, next) => {
     if (lastSubmittedLog.id !== logId) {
         return next({"message": "This document does not exist, or is not yours", "statusCode": 403})
     }
+    console.log(lastSubmittedLog);
     // update log contents with new contents
     const data = {
-        "title": new_title,
-        "content": new_content
+        "title": new_title.trim(),
+        "content": new_content.trim()
     }
+    console.log(data);
     await updateItemInsideFirestore(db, "logs", logId, data).then(e => {
         return res.send({"status": "Success", "message": "Successfully done"})
     })
@@ -271,6 +275,49 @@ router.post("/logs/delete/", verifyIdToken, async (req, res, next) => {
         return next({"message": "An error occurred while trying to delete the document"});
     }
     console.log("cant be deleted");
+    return next({"message": "This operation is invalid", "statusCode": 403});
+})
+
+router.post("/dailylog/add/", verifyIdToken, async (req, res, next) => {
+    let title = req.body.title;
+    let content = req.body.content;
+    let uid = req.body.uid;
+    // todo: check if title and content meet max character limit
+
+    // get user time zone
+    let userTimeZone = await getItemFromFirestore(db, uid, "users");
+    if (userTimeZone.status !== "Success") {
+        return next({"message": "An error occurred while fetching user profile", "statusCode": 424});
+    }
+    userTimeZone = userTimeZone.data.timezone;
+    console.log(userTimeZone);
+
+    // get last added daily log
+    let lastSubmittedLog;
+    const logsRef = db.collection("dailylogs");
+    await logsRef.where("ownerId", "==", uid).orderBy("createdAt", "desc").limit(1).get().then(querySnapshot => {
+        querySnapshot.forEach((doc) => {
+            console.log(doc.data());
+            lastSubmittedLog = doc.data();
+        })
+    });
+
+    const currentDate = DateTime.now().setZone(userTimeZone).startOf("day");
+    const lastLogDate = DateTime.fromSeconds(lastSubmittedLog.createdAt.seconds, {zone: userTimeZone}).startOf("day");
+
+    if (currentDate.diff(lastLogDate) >= 1) {
+        let data = {
+            "title": title.trim(),
+            "content": content.trim(),
+            "ownerId": uid,
+            "createdAt": admin.firestore.FieldValue.serverTimestamp()
+        }
+        await addItemIntoFirestore(db, "dailylogs", data).then(resp => {
+            data.id = resp.data;
+            data.createdAt = {"seconds": DateTime.now().toSeconds()}
+        })
+        return res.send(data);
+    }
     return next({"message": "This operation is invalid", "statusCode": 403});
 })
 module.exports = router;

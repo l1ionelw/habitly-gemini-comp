@@ -1,7 +1,8 @@
 import getUserIdToken from "./getUserIdToken.js";
 import {API_URL} from "../../main.jsx";
 
-export default async function backendUpdateLogs(logId, title, content) {
+export default async function backendUpdateLogs(logId, title, content, habitId) {
+    console.log(habitId);
     console.log(logId);
     let status = "Loading";
     let response = null;
@@ -17,7 +18,7 @@ export default async function backendUpdateLogs(logId, title, content) {
             "Content-Type": "application/json",
             "Authorization": idToken.data
         },
-        body: JSON.stringify({"logId": logId, "title": title, "content": content})
+        body: JSON.stringify({"logId": logId, "title": title, "content": content, "habitId": habitId})
     }).then(async e => {
         console.log(e);
         e.status === 200 ? status = "Success" : status = "Error";

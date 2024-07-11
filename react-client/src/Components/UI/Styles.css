@@ -1,6 +1,5 @@
 .styled-button {
     padding: 1px 2rem;
-    background-color: lightgray;
     border-radius: 0.4rem;
     display: inline-block;
     font-family: "Montserrat", sans-serif;
@@ -48,10 +47,25 @@
     border: none;
 }
 
-.habit-completed {
+.item-completed {
     background-color: lightblue;
 }
 
-.habit-incomplete {
+.item-incomplete {
     background-color: lightgray;
 }
+
+.circle-indicator {
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    min-width: 30px;
+    min-height: 30px;
+    cursor: pointer;
+    transition-duration: 40ms;
+}
+.circle-indicator:hover {
+    border: dotted;
+    transform: scale(0.88);
+}
+

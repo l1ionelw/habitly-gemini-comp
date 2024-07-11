@@ -16,7 +16,6 @@ import Button from "../../UI/Button.jsx";
 import HabitCard from "../../UI/HabitCard.jsx";
 import checkHabitCompleted from "../../../Utils/habits/checkHabitCompleted.js";
 import Statcard from "../../UI/Statcard.jsx";
-import FamilySVG from "../../Icons/FamilySVG.jsx";
 import FireSVG from "../../Icons/FireSVG.jsx";
 import CheckmarkSVG from "../../Icons/CheckmarkSVG.jsx";
 import XmarkSVG from "../../Icons/XmarkSVG.jsx";
@@ -32,7 +31,7 @@ export default function DetailView() {
     const [logs, setLogs] = useState([]);
     const [habitInfoEditor, setHabitInfoEditor] = useState(false);
 
-    const habitCardClassname = `mb-5 ${checkHabitCompleted(habitInfo?.records) ? "habit-completed" : "habit-incomplete"}`
+    const habitCardClassname = `mb-5 ${checkHabitCompleted(habitInfo?.records) ? "item-completed" : "item-incomplete"}`
 
     useEffect(() => {
         console.log("fetching");
@@ -159,6 +158,7 @@ export default function DetailView() {
                                                                                  missionStatement={habitInfo.missionStatement}
                                                                                  showEditor={habitInfoEditor}
                                                                                  setShowEditor={setHabitInfoEditor}
+                                                                                 width={"350px"}
                                                                                  callback={updateHabitDetails}/></HabitCard>)
                 }
 

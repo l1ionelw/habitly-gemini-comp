@@ -16,7 +16,7 @@ export default function Tasks() {
                 <h1>Tasks</h1>
                 <TasksList taskList={tasks} setTaskList={setTasks}/>
             </ContentBlurred>
-            <AddTask showEditor={showEditor} setErrorMessage={setErrorMessage} callback={()=>setEditor(false)}/>
+            <AddTask setter={setTasks} showEditor={showEditor} setErrorMessage={setErrorMessage} callback={()=>setEditor(false)}/>
 
         </div>
     );

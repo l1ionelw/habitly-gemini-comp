@@ -18,7 +18,7 @@ export default function LogViewer({habitId, logs, setLogs}) {
         if (!lastLogCreatedTime.equals(now)) {
             return console.log("unable to update log");
         }
-        await backendUpdateLogs(lastLog.id, updatedTitle, updatedContent).then(e => {
+        await backendUpdateLogs(lastLog.id, updatedTitle, updatedContent, habitId).then(e => {
             console.log(e);
             setLogs(produce(draft => {
                 draft[0].title = updatedTitle;
