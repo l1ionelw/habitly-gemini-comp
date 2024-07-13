@@ -4,12 +4,10 @@ import {serverTimestamp} from "firebase/firestore";
 import addItemIntoFirestore from "../../Utils/addItemIntoFirestore.js";
 import queryItemFromFirestore from "../../Utils/queryItemFromFirestore.js";
 import checkHabitExists from "./Utils/checkHabitExists.jsx";
-import {produce} from "immer";
-import {HabitsListContext} from "../Contexts/HabitsListContext.jsx";
 import Card from "../UI/Card.jsx";
 import Button from "../UI/Button.jsx";
 
-export default function AddHabit({setter, showEditor, setErrorMessage, callback}) {
+export default function NewItemCard({showEditor, setErrorMessage, callback}) {
     const userId = useContext(Auth).user.uid;
     const [title, setTitle] = useState("");
     const [missionStatement, setMissionStatement] = useState("");
@@ -45,9 +43,7 @@ export default function AddHabit({setter, showEditor, setErrorMessage, callback}
         setTitle("");
         setMissionStatement("");
         data.id = docId;
-        setter(produce(draft => {
-            draft.unshift(data);
-        }))
+        callback(data);
     }
 
 

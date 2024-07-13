@@ -2,16 +2,17 @@ import {useContext, useMemo, useState} from "react";
 import {Auth} from "../Contexts/AuthContext.jsx";
 import Loading from "../Loading.jsx";
 import getItemFromFirestore from "../../Utils/getItemFromFirestore.js";
-import AddHabit from "./AddHabit.jsx";
+import NewItemCard from "./NewItemCard.jsx";
 import HabitsList from "./HabitsList.jsx";
-import {HabitsListContext} from "../Contexts/HabitsListContext.jsx";
 import Button from "../UI/Button.jsx";
 import ContentBlurred from "../UI/ContentBlurred.jsx";
+import {AppContext} from "../Contexts/AppContext.jsx";
+import {produce} from "immer";
 
 export default function Habits() {
     const [userData, setUserData] = useState(null);
     const userId = useContext(Auth).user.uid;
-    const [habitsList, setHabitsList] = useState();
+    const setHabitsList = useContext(AppContext).setter;
     const [showEditor, setShowEditor] = useState(false);
     const [errorMessage, setErrorMessage] = useState();
 
@@ -20,6 +21,14 @@ export default function Habits() {
             setUserData(data.data);
         });
     }, [userId]);
+
+    function addNewItemToState(data) {
+        if (!data) return;
+        setHabitsList(produce(draft => {
+            draft.unshift(data);
+        }))
+        setShowEditor(false);
+    }
 
 
     if (userData) {
@@ -32,11 +41,12 @@ export default function Habits() {
                         <h1>{userData.name}</h1>
                         <h3>{userData.email}</h3>
                     </div>
-                    <HabitsList habitsList={habitsList} setHabitsList={setHabitsList}/>
+                    <HabitsList/>
                 </ContentBlurred>
-                <AddHabit setter={setHabitsList} showEditor={showEditor} setErrorMessage={setErrorMessage}
-                          callback={() => setShowEditor(false)}/>
+                <NewItemCard showEditor={showEditor} setErrorMessage={setErrorMessage}
+                             callback={addNewItemToState}/>
             </div>
+
         )
     }
     return <Loading/>

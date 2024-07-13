@@ -1,20 +1,7 @@
 import "./sidebar.css"
+import shouldSelect from "../../Utils/shouldSelect.js";
 
 export default function Sidebar({children}) {
-    function shouldSelect(url) {
-        const pagePath = window.location.pathname;
-        console.log(pagePath);
-        if (url === "/") {
-            if (url === pagePath) {
-                return "selected"
-            }
-            return ""
-        }
-        if (pagePath.includes(url)) {
-            return "selected";
-        }
-    }
-
     return (
         <>
             <div className={"sidebar"}>

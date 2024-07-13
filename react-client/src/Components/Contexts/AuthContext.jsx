@@ -4,7 +4,6 @@ import {createContext, useContext, useEffect, useState} from "react";
 export const Auth = createContext();
 
 export default function AuthContext({children}) {
-    console.log("Context reloaded");
     const auth = getAuth();
     const [user, setUser] = useState(null);
     const [authState, setAuthState] = useState(null);

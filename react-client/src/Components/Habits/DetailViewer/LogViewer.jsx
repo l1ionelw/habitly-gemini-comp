@@ -3,7 +3,7 @@ import {DateTime} from "luxon";
 import backendUpdateLogs from "../../../Utils/backend/backendUpdateLogs.js";
 import {produce} from "immer";
 import backendDeleteLogs from "../../../Utils/backend/backendDeleteLogs.js";
-import CompletedIndicator from "../CompletedIndicator.jsx";
+import ToggleHabitIndicator from "../ToggleHabitIndicator.jsx";
 import Button from "../../UI/Button.jsx";
 
 export default function LogViewer({habitId, logs, setLogs}) {

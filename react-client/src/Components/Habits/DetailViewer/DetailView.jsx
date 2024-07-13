@@ -1,5 +1,5 @@
 import {Navigate, useParams} from "react-router-dom";
-import {useEffect, useState} from "react";
+import {useContext, useEffect, useState} from "react";
 import getItemFromFirestore from "../../../Utils/getItemFromFirestore.js";
 import HabitCompletedDaysCalendar from "../Calendar/HabitCompletedDaysCalendar.jsx";
 import DeleteItem from "../../DeleteItem.jsx";
@@ -9,7 +9,7 @@ import AddLog from "./AddLog.jsx";
 import HabitDetailEditor from "./HabitDetailEditor.jsx";
 import {produce} from "immer";
 import updateItemInsideFirestore from "../../../Utils/updateItemInsideFirestore.js";
-import ToggleHabitIndicator from "../CompletedIndicator.jsx";
+import ToggleHabitIndicator from "../ToggleHabitIndicator.jsx";
 import {DateTime} from "luxon";
 import EditValue from "./EditValue.jsx";
 import Button from "../../UI/Button.jsx";
@@ -21,20 +21,22 @@ import CheckmarkSVG from "../../Icons/CheckmarkSVG.jsx";
 import XmarkSVG from "../../Icons/XmarkSVG.jsx";
 import CalendarDaysSVG from "../../Icons/CalendarDaysSVG.jsx";
 import BookLogJournalSVG from "../../Icons/BookLogJournalSVG.jsx";
+import {AppContext} from "../../Contexts/AppContext.jsx";
+import TopBar from "../../TopBar/index.jsx";
 
 export default function DetailView() {
     const habitId = useParams().habitId;
-
-    const [habitInfo, setHabitInfo] = useState();
+    const habitInfo = useContext(AppContext).getter;
+    const setHabitInfo = useContext(AppContext).setter;
     const [error, setError] = useState("");
     const [redirect, setRedirect] = useState("");
     const [logs, setLogs] = useState([]);
     const [habitInfoEditor, setHabitInfoEditor] = useState(false);
-
     const habitCardClassname = `mb-5 ${checkHabitCompleted(habitInfo?.records) ? "item-completed" : "item-incomplete"}`
+    const topBarElements = ["Details", "Logs"];
+    const [currentSelected, setCurrentSelected] = useState("Details");
 
     useEffect(() => {
-        console.log("fetching");
         getItemFromFirestore(habitId, "habits").then(resp => {
             if (resp.status === "Success") {
                 resp.data.id = habitId;
@@ -48,6 +50,12 @@ export default function DetailView() {
             setLogs(data);
         })
     }, [])
+
+    function updatedToggleState(newRecords) {
+        setHabitInfo(produce(draft => {
+            draft.records = newRecords
+        }))
+    }
 
     function updateHabitDetails(updatedTitle, updatedMissionStatement) {
         updateItemInsideFirestore("habits", habitId, {
@@ -84,6 +92,7 @@ export default function DetailView() {
 
     function getCurrentStreak() {
         if (habitInfo.records.length === 0) {
+            console.log("no days yet")
             return "0d";
         }
         // TODO: check this later
@@ -153,49 +162,60 @@ export default function DetailView() {
     if (habitInfo) {
         return (
             <div className={"pt-4"}>
+                <TopBar elements={topBarElements} currentElement={currentSelected} setCurrentElement={setCurrentSelected}/>
                 {habitInfoEditor && (
-                    <HabitCard className={habitCardClassname}><HabitDetailEditor title={habitInfo.title}
-                                                                                 missionStatement={habitInfo.missionStatement}
-                                                                                 showEditor={habitInfoEditor}
-                                                                                 setShowEditor={setHabitInfoEditor}
-                                                                                 width={"350px"}
-                                                                                 callback={updateHabitDetails}/></HabitCard>)
-                }
-
+                    <HabitCard className={habitCardClassname}>
+                        <HabitDetailEditor
+                            title={habitInfo.title}
+                            missionStatement={habitInfo.missionStatement}
+                            showEditor={habitInfoEditor}
+                            setShowEditor={setHabitInfoEditor}
+                            width={"350px"}
+                            callback={updateHabitDetails}
+                        />
+                    </HabitCard>
+                )}
                 {!habitInfoEditor && (<HabitCard className={habitCardClassname}><h1>{habitInfo.title}</h1>
                     <p>{habitInfo.missionStatement}</p></HabitCard>)}
+                <div hidden={currentSelected !== "Details"}>
 
-                {checkHabitCompleted(habitInfo.records) ? "Habit is completed today" : "Habit is not completed"}
-                <div className={"flex flex-row gap-x-2 mt-4"}>
-                    <ToggleHabitIndicator habitId={habitId} habitsList={habitInfo} setHabits={setHabitInfo}
-                                          variant={"HabitDetail"}>
-                        <Button text={"Toggle Habit"}/>
-                    </ToggleHabitIndicator>
-                    <EditValue setShowEditor={setHabitInfoEditor}
-                               callback={toggleHabitInfoEditor}/>
-                    <DeleteItem buttonText={"Delete Habit"} itemId={habitId} collectionName={"habits"} callback={() => setRedirect("/")}/>
-                </div>
-                <p>{JSON.stringify(habitInfo)}</p>
-                <h2>Stats</h2>
-                <h3>Start
-                    Day: {DateTime.fromSeconds(habitInfo.createdAt.seconds).toISODate()} {DateTime.fromSeconds(habitInfo.createdAt.seconds).toLocaleString(DateTime.TIME_WITH_SHORT_OFFSET)}</h3>
-                <div className={"flex flex-row gap-x-3 mb-3"}>
-                    <Statcard title={"Current Streak"} content={getCurrentStreak()} svgPath={<FireSVG fill={"#ff9600"}/>}/>
-                    <Statcard title={"Longest Streak"} content={getLongestStreak()} svgPath={<FireSVG fill={"#4eb600"}/>}/>
 
-                    <Statcard title={"Days completed"} content={getDaysCompleted()} svgPath={<CheckmarkSVG/>}/>
-                </div>
-                <div className={"flex flex-row gap-x-3 mb-3"}>
-                    <Statcard title={"Days not completed"} content={getDaysIncomplete()} svgPath={<XmarkSVG/>}/>
-                    <Statcard title={"Days since started"} content={getTotalTimeSinceStart(true)}
-                              svgPath={<CalendarDaysSVG/>}/>
-                    <Statcard title={"Total log entries"} content={getLogsCount()} svgPath={<BookLogJournalSVG/>}/>
-                </div>
-                <HabitCompletedDaysCalendar completedDates={habitInfo.records}/>
+                    {checkHabitCompleted(habitInfo.records) ? "Habit is completed today" : "Habit is not completed"}
+                    <div className={"flex flex-row gap-x-2 mt-4"}>
+                        <ToggleHabitIndicator habitId={habitId} callback={updatedToggleState} variant={"HabitDetail"}>
+                            <Button text={"Toggle Habit"}/>
+                        </ToggleHabitIndicator>
+                        <EditValue setShowEditor={setHabitInfoEditor}
+                                   callback={toggleHabitInfoEditor}/>
+                        <DeleteItem buttonText={"Delete Habit"} itemId={habitId} collectionName={"habits"}
+                                    callback={() => setRedirect("/")}/>
+                    </div>
+                    <p>{JSON.stringify(habitInfo)}</p>
+                    <h2>Stats</h2>
+                    <h3>Start
+                        Day: {DateTime.fromSeconds(habitInfo.createdAt.seconds).toISODate()} {DateTime.fromSeconds(habitInfo.createdAt.seconds).toLocaleString(DateTime.TIME_WITH_SHORT_OFFSET)}</h3>
+                    <div className={"flex flex-row gap-x-3 mb-3"}>
+                        <Statcard title={"Current Streak"} content={getCurrentStreak()}
+                                  svgPath={<FireSVG fill={"#ff9600"}/>}/>
+                        <Statcard title={"Longest Streak"} content={getLongestStreak()}
+                                  svgPath={<FireSVG fill={"#4eb600"}/>}/>
 
-                <h2>Logs</h2>
-                <AddLog logs={logs} setLogs={setLogs} habitInfo={habitInfo}/>
-                <LogViewer habitId={habitId} logs={logs} setLogs={setLogs}/>
+                        <Statcard title={"Days completed"} content={getDaysCompleted()} svgPath={<CheckmarkSVG/>}/>
+                    </div>
+                    <div className={"flex flex-row gap-x-3 mb-3"}>
+                        <Statcard title={"Days not completed"} content={getDaysIncomplete()} svgPath={<XmarkSVG/>}/>
+                        <Statcard title={"Days since started"} content={getTotalTimeSinceStart(true)}
+                                  svgPath={<CalendarDaysSVG/>}/>
+                        <Statcard title={"Total log entries"} content={getLogsCount()} svgPath={<BookLogJournalSVG/>}/>
+                    </div>
+                    <HabitCompletedDaysCalendar completedDates={habitInfo.records}/>
+
+                    <h2>Logs</h2>
+                    <AddLog logs={logs} setLogs={setLogs} habitInfo={habitInfo}/>
+                    <LogViewer habitId={habitId} logs={logs} setLogs={setLogs}/>
+                </div>
+
+
             </div>
         )
     }
