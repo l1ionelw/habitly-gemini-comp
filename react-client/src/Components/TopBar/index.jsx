@@ -1,14 +1,20 @@
 import "../Sidebar/sidebar.css"
-import {useState} from "react";
 
 export default function TopBar({elements, currentElement, setCurrentElement}) {
 
     function generateClassNames(element) {
-        return `${element === currentElement ? "selected" : ""}`
+        return `${element === currentElement ? "selected" : ""} p-3 cursor-pointer select-none`
     }
 
+    const styles = {
+        backgroundColor: "seagreen",
+        padding: "1rem",
+        borderRadius: "0.25rem",
+        marginBottom: "1rem",
+        alignItems: "center"
+    }
     return (
-        <div className={"flex gap-x-5"}>
+        <div className={"flex gap-x-5"} style={styles}>
             {elements.map(element => (
                 <div className={generateClassNames(element)} onClick={() => setCurrentElement(element)}>{element}</div>
             ))}

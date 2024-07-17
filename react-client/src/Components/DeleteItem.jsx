@@ -12,7 +12,7 @@ export default function DeleteItem({buttonText, size, itemId, collectionName, ca
         await deleteDataFromFirestore(collectionName, itemId).then(e => {
             console.log(e);
         });
-        callback ? callback(itemId) : "";
+        callback ? callback() : "";
     }
 
     return (

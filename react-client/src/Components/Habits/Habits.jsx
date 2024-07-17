@@ -2,19 +2,25 @@ import {useContext, useMemo, useState} from "react";
 import {Auth} from "../Contexts/AuthContext.jsx";
 import Loading from "../Loading.jsx";
 import getItemFromFirestore from "../../Utils/getItemFromFirestore.js";
-import NewItemCard from "./NewItemCard.jsx";
 import HabitsList from "./HabitsList.jsx";
 import Button from "../UI/Button.jsx";
 import ContentBlurred from "../UI/ContentBlurred.jsx";
 import {AppContext} from "../Contexts/AppContext.jsx";
 import {produce} from "immer";
+import EditorPopup from "../UI/EditorPopup.jsx";
+import {serverTimestamp} from "firebase/firestore";
+import queryItemFromFirestore from "../../Utils/queryItemFromFirestore.js";
+import checkHabitExists from "./Utils/checkHabitExists.jsx";
+import addItemIntoFirestore from "../../Utils/addItemIntoFirestore.js";
 
 export default function Habits() {
     const [userData, setUserData] = useState(null);
     const userId = useContext(Auth).user.uid;
     const setHabitsList = useContext(AppContext).setter;
     const [showEditor, setShowEditor] = useState(false);
-    const [errorMessage, setErrorMessage] = useState();
+    const [errorMessage, setErrorMessage] = useState("");
+    const HABIT_TITLE_MAX_LENGTH = 45
+    const HABIT_MISSIONSTATEMENT_MAX_LENGTH = 400;
 
     useMemo(() => {
         getItemFromFirestore(userId, "users").then(data => {
@@ -30,6 +36,38 @@ export default function Habits() {
         setShowEditor(false);
     }
 
+    function validation(title, statement) {
+        title = title.trim();
+        statement = statement.trim();
+        const rulesBroken = title.length > HABIT_TITLE_MAX_LENGTH || statement.length > HABIT_MISSIONSTATEMENT_MAX_LENGTH
+        if (rulesBroken) {
+            console.log("validaion not passed lmao");
+            setErrorMessage("An error occurred: Habit fields exceed max length");
+        }
+        return !rulesBroken
+    }
+
+    async function addNewHabit(title, statement) {
+        title = title.trim();
+        statement = statement.trim();
+        const data = {
+            title: title,
+            missionStatement: statement,
+            ownerId: userId,
+            records: [],
+            createdAt: serverTimestamp()
+        }
+        const currentHabits = await queryItemFromFirestore("habits", "ownerId", userId);
+        if (!checkHabitExists(currentHabits, title)) {
+            const transaction = await addItemIntoFirestore("habits", data);
+            data.id = transaction.data;
+            transaction.status === "Success" ? addNewItemToState(data) : setErrorMessage("An Error Occurred: " + transaction.data);
+        } else {
+            setErrorMessage("An error occurred: This habit already exists");
+        }
+
+    }
+
 
     if (userData) {
         return (
@@ -43,8 +81,8 @@ export default function Habits() {
                     </div>
                     <HabitsList/>
                 </ContentBlurred>
-                <NewItemCard showEditor={showEditor} setErrorMessage={setErrorMessage}
-                             callback={addNewItemToState}/>
+                <EditorPopup header={"Create a new habit"} visible={showEditor} validation={validation} onCancel={() => setShowEditor(false)}
+                             onSubmit={addNewHabit}/>
             </div>
 
         )

@@ -283,6 +283,7 @@ router.post("/dailylog/add/", verifyIdToken, async (req, res, next) => {
     let content = req.body.content;
     let uid = req.body.uid;
     // todo: check if title and content meet max character limit
+    // todo: for ALL queries, check if the query is undefined (first ever query).
 
     // get user time zone
     let userTimeZone = await getItemFromFirestore(db, uid, "users");
@@ -301,6 +302,9 @@ router.post("/dailylog/add/", verifyIdToken, async (req, res, next) => {
             lastSubmittedLog = doc.data();
         })
     });
+    if (!lastSubmittedLog) { // users' first ever log
+        lastSubmittedLog = {createdAt: {seconds:DateTime.now().minus({hours: 48}).toSeconds()}}
+    }
 
     const currentDate = DateTime.now().setZone(userTimeZone).startOf("day");
     const lastLogDate = DateTime.fromSeconds(lastSubmittedLog.createdAt.seconds, {zone: userTimeZone}).startOf("day");

@@ -36,7 +36,6 @@ export default function NewItemCard({showEditor, setErrorMessage, callback}) {
         } else {
             setErrorMessage("An error occurred: This habit already exists");
         }
-        callback();
     }
 
     function handleAddSuccess(data, docId) {

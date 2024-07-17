@@ -1,8 +1,8 @@
 import React from 'react';
 
-export default function CompletedCircleIndicator({taskId, className, onClick}) {
+export default function CompletedCircleIndicator({className, onClick}) {
     function handleClick() {
-        onClick(taskId);
+        onClick();
     }
 
     return (
