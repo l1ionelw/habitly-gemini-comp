@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.15.0",
     "clsx": "^2.1.1",
     "date-streaks": "^1.2.1",
     "firebase": "^10.12.2",

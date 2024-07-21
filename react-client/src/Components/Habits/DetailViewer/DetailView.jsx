@@ -19,8 +19,10 @@ import ContentBlurred from "../../UI/ContentBlurred.jsx";
 import EditorPopup from "../../UI/EditorPopup.jsx";
 import LogTab from "./LogTab.jsx";
 import backendAddLogs from "../../../Utils/backend/backendAddLogs.js";
+import Loading from "../../Loading.jsx";
 
 export default function DetailView() {
+    const [isLoading, setIsLoading] = useState(true);
     const habitId = useParams().habitId;
     const habitInfo = useContext(AppContext).getter;
     const setHabitInfo = useContext(AppContext).setter;
@@ -41,6 +43,7 @@ export default function DetailView() {
             } else {
                 setError(resp.status === "Error" ? resp.data : "An unknown error occurred");
             }
+            setIsLoading(false);
         });
         queryItemFromFirestore("logs", "habitOwner", habitId).then(data => {
             data = data.sort((a, b) => b.createdAt.seconds - a.createdAt.seconds);
@@ -96,6 +99,10 @@ export default function DetailView() {
         const lastLogCreatedTime = DateTime.fromSeconds(logs[0].createdAt.seconds).startOf("day");
         const now = DateTime.now().startOf("day");
         return !lastLogCreatedTime.equals(now) && checkHabitCompleted(habitInfo.records);
+    }
+
+    if (isLoading) {
+        return <Loading/>
     }
 
     if (redirect) {

@@ -6,7 +6,7 @@ import {BrowserRoutes} from "./BrowserRoutes.jsx";
 import AuthContext from "./Components/Contexts/AuthContext.jsx";
 import AppContextProvider from "./Components/Contexts/AppContext.jsx";
 
-export const API_URL = "http://localhost:5001"
+export const API_URL = import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL: "http://localhost:5001"
 
 ReactDOM.createRoot(document.getElementById('root')).render(
     <React.StrictMode>

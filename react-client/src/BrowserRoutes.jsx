@@ -9,6 +9,7 @@ import Sidebar from "./Components/Sidebar/Sidebar.jsx";
 import Tasks from "./Components/Tasks/Tasks.jsx";
 import Logout from "./Components/Logout/index.jsx";
 import DailyLog from "./Components/DailyLog/index.jsx";
+import Ai from "./Components/Ai/index.jsx";
 
 export const BrowserRoutes = createBrowserRouter([
         {
@@ -21,23 +22,27 @@ export const BrowserRoutes = createBrowserRouter([
         },
         {
             path: "/habits/",
-            element: <Protected><Sidebar><Habits/></Sidebar></Protected>,
+            element: <Sidebar><Protected><Habits/></Protected></Sidebar>,
         },
         {
             path: "/habits/detail/:habitId",
-            element: <Protected><Sidebar><DetailView/></Sidebar></Protected>,
+            element: <Sidebar><Protected><DetailView/></Protected></Sidebar>,
         },
         {
             path: "/tasks/",
-            element: <Protected><Sidebar><Tasks/></Sidebar></Protected>
+            element: <Sidebar><Protected><Tasks/></Protected></Sidebar>
         },
         {
             path: "/logout/",
-            element: <Protected><Sidebar><Logout/></Sidebar></Protected>
+            element: <Sidebar><Protected><Logout/></Protected></Sidebar>
         },
         {
             path: "/dailylog/",
-            element: <Protected><Sidebar><DailyLog/></Sidebar></Protected>
+            element: <Sidebar><Protected><DailyLog/></Protected></Sidebar>
+        },
+        {
+            path: "/ai/",
+            element: <Sidebar><Protected><Ai/></Protected></Sidebar>
         }
     ]
 )
