@@ -3,8 +3,7 @@ import {useContext} from "react";
 import {Auth} from "./Components/Contexts/AuthContext.jsx";
 import {Navigate} from "react-router-dom";
 import Loading from "./Components/Loading.jsx";
-
-
+console.log(import.meta.env.VITE_API_URL)
 export default function App() {
     const userLoginState = useContext(Auth).authState;
     console.log(userLoginState);
