@@ -2,8 +2,6 @@ import getUserIdToken from "./getUserIdToken.js";
 import {API_URL} from "../../main.jsx";
 
 export default async function backendUpdateLogs(logId, title, content, habitId) {
-    console.log(habitId);
-    console.log(logId);
     let status = "Loading";
     let response = null;
     console.log("sending request to backend server");

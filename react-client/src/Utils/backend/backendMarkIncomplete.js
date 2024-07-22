@@ -10,7 +10,6 @@ export default async function backendMarkIncomplete(habitId) {
         console.log(idToken.data);
         return
     }
-    console.log(idToken.data);
     await fetch(`${API_URL}/api/habits/incomplete/`, {
         method: "POST",
         headers: {
