@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const admin = require('firebase-admin');
-const {getFirestore, serverTimestamp} = require("firebase-admin/firestore");
+const {getFirestore, connectFirestoreEmulator, serverTimestamp} = require("firebase-admin/firestore");
 const serviceAccount = require('../gemini-comp-f9cc5-firebase-adminsdk.json');
 const {getAuth} = require("firebase-admin/auth");
 const getItemFromFirestore = require("../Utils/getItemFromFirestore");
@@ -10,14 +10,22 @@ const updateItemInsideFirestore = require("../Utils/updateItemInFirestore");
 const addItemIntoFirestore = require("../Utils/addItemIntoFirestore");
 const logEntryAllowed = require("../Utils/logEntryAllowed");
 const deleteItemFromFirestore = require("../Utils/deleteItemFromFirestore");
+
+const OFFLINE_USER_UID = "gqug8hdPwn51XYJhOzI1lcLcgdXK"
+
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
 });
 const db = getFirestore();
+
 const LOG_TITLE_MAX_CHARS = 45;
 const LOG_CONTENT_MAX_CHARS = 700;
 
 function verifyIdToken(req, res, next) {
+    if (process.env.FIRESTORE_EMULATOR_HOST) {
+        req.body.uid = OFFLINE_USER_UID;
+        return next();
+    }
     if (!req.headers.authorization) {
         return res.send("No auth provided");
     }
@@ -26,10 +34,10 @@ function verifyIdToken(req, res, next) {
         .then((decodedToken) => {
             req.body.uid = decodedToken.uid;
             req.body.auth = decodedToken;
-            next();
+            return next();
         })
         .catch((error) => {
-            return res.send("Error: ", error.message);
+            return res.send(404, "Error: ", error.message);
         });
 }
 
@@ -42,6 +50,7 @@ router.post("/habits/complete/", verifyIdToken, async (req, res, next) => {
     const habitId = req.body.habitId;
     console.log(uid);
     console.log(habitId);
+
 
     let userTimeZone = await getItemFromFirestore(db, uid, "users");
     if (userTimeZone.status !== "Success") {
@@ -64,7 +73,7 @@ router.post("/habits/complete/", verifyIdToken, async (req, res, next) => {
         habitRecords.unshift(currentTimeMillis);
         console.log(habitRecords);
         await updateItemInsideFirestore(db, "habits", habitId, {"records": habitRecords}).then(e => {
-            console.log("Added successfully");
+            console.log("Added successfully 0");
             console.log(e);
             return res.send({"status": "success", "data": habitRecords});
         });
@@ -76,7 +85,7 @@ router.post("/habits/complete/", verifyIdToken, async (req, res, next) => {
         if (diff >= 1) { // valid
             habitRecords.unshift(currentTimeMillis);
             await updateItemInsideFirestore(db, "habits", habitId, {"records": habitRecords}).then(e => {
-                console.log("Added successfully");
+                console.log("Added successfully 1");
                 console.log(e);
                 return res.send({"status": "success", "data": habitRecords});
             });
@@ -303,7 +312,7 @@ router.post("/dailylog/add/", verifyIdToken, async (req, res, next) => {
         })
     });
     if (!lastSubmittedLog) { // users' first ever log
-        lastSubmittedLog = {createdAt: {seconds:DateTime.now().minus({hours: 48}).toSeconds()}}
+        lastSubmittedLog = {createdAt: {seconds: DateTime.now().minus({hours: 48}).toSeconds()}}
     }
 
     const currentDate = DateTime.now().setZone(userTimeZone).startOf("day");

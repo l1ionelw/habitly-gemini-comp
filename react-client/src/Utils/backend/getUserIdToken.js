@@ -2,6 +2,10 @@ import {getAuth, getIdToken} from "firebase/auth";
 const auth = getAuth();
 
 export default async function getUserIdToken() {
+    if (import.meta.env.VITE_FIRESTORE_EMULATOR) {
+        return {"status": "Success", "data": "hi"}
+    }
+
     const {currentUser} = auth
     let status = "Loading";
     let data = null;
@@ -15,7 +19,7 @@ export default async function getUserIdToken() {
         })
     }
     catch (exception) {
-        console.log(exception)
+        console.log(exception);
         status = "Error"
         data = exception.message
     }

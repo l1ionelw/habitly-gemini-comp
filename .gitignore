@@ -4,3 +4,7 @@ node_modules
 .idea
 .vite
 gemini-comp-f9cc5-firebase-adminsdk.json
+emulator-data
+firebase.json
+firestore-debug.log
+ui-debug.log

@@ -19,10 +19,20 @@ export default function AuthContext({children}) {
             setIsLoading(false);
         })
     }, [])
-    const values = {
+
+
+    let values = {
         authState: authState,
         user: user,
     }
+
+    if (import.meta.env.VITE_FIRESTORE_EMULATOR) {
+        values = {
+            authState: "Logged In",
+            user: {uid: import.meta.env.VITE_ADMIN_UID}
+        }
+    }
+
     return <Auth.Provider value={values}>{!isLoading && children}</Auth.Provider>
 }
 

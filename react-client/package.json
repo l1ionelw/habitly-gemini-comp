@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "offline": "cross-env VITE_FIRESTORE_EMULATOR=true VITE_ADMIN_UID=gqug8hdPwn51XYJhOzI1lcLcgdXK vite",
     "start": "cross-env VITE_API_URL=$API_URL vite --port=3072 --host",
     "dev": "vite",
     "build": "vite build",
