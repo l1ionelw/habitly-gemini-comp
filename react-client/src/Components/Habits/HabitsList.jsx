@@ -19,10 +19,14 @@ export default function HabitsList() {
     useEffect(() => {
         queryItemFromFirestore("habits", "ownerId", userId).then(data => {
             if (data) {
-                setHabitsList(data);
-                if (data.length === 0) setHabitsList("No Habits");
+                if (data.length === 0) {
+                    setHabitsList("No Habits");
+                }
+                else {
+                    setHabitsList(data);
+                }
             } else {
-                setHabitsList("Error");
+                setHabitsList("Error")
             }
             setLoading(false);
         });
@@ -52,16 +56,16 @@ export default function HabitsList() {
                 <h1>My Habits</h1>
                 {habitsList.map((habit) => (
                     <div className={"mb-3"}>
-                        <ToggleHabitIndicator habitId={habit.id} callback={updateToggledState}>
-                            <HabitCardBase
-                                className={generateHabitClassname(habit)}>
-                                <h4>
-                                    <a href={`/habits/detail/${habit.id}`}
-                                       className={"unstyled-href"}>{habit.title}</a>
-                                </h4>
+                        <HabitCardBase
+                            className={generateHabitClassname(habit)}>
+                            <ToggleHabitIndicator habitId={habit.id} callback={updateToggledState}>
+                            <h4>
+                                <a href={`/habits/detail/${habit.id}`}
+                                   className={"unstyled-href"}>{habit.title}</a>
+                            </h4>
                                 <p className={"text-sm"}>{habit.missionStatement}</p>
-                            </HabitCardBase>
-                        </ToggleHabitIndicator>
+                            </ToggleHabitIndicator>
+                        </HabitCardBase>
                     </div>
                 ))}
             </div>

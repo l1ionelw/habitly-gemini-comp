@@ -20,6 +20,7 @@ import EditorPopup from "../../UI/EditorPopup.jsx";
 import LogTab from "./LogTab.jsx";
 import backendAddLogs from "../../../Utils/backend/backendAddLogs.js";
 import Loading from "../../Loading.jsx";
+import checkLogEntryAllowed from "./Utils/checkLogEntryAllowed.js";
 
 export default function DetailView() {
     const [isLoading, setIsLoading] = useState(true);
@@ -34,6 +35,7 @@ export default function DetailView() {
     const topBarElements = ["Details", "Logs"];
     const [currentSelected, setCurrentSelected] = useState("Details");
     const [logEditor, setLogEditor] = useState(false);
+    const lowEntryAllowed = checkLogEntryAllowed(habitInfo?.records, logs);
 
     useEffect(() => {
         getItemFromFirestore(habitId, "habits").then(resp => {
@@ -92,15 +94,6 @@ export default function DetailView() {
         setLogEditor(false);
     }
 
-    function logEntryAllowed() {
-        if (logs.length === 0) {
-            return true;
-        }
-        const lastLogCreatedTime = DateTime.fromSeconds(logs[0].createdAt.seconds).startOf("day");
-        const now = DateTime.now().startOf("day");
-        return !lastLogCreatedTime.equals(now) && checkHabitCompleted(habitInfo.records);
-    }
-
     if (isLoading) {
         return <Loading/>
     }
@@ -112,39 +105,41 @@ export default function DetailView() {
         return (
             <div className={"pt-4"}>
                 <ContentBlurred showEditor={logEditor}>
-                <TopBar elements={topBarElements} currentElement={currentSelected}
-                        setCurrentElement={setCurrentSelected}/>
-                <MainHabitCard
-                    habitInfoEditor={habitInfoEditor}
-                    habitCardClassname={habitCardClassname}
-                    setHabitInfoEditor={setHabitInfoEditor}
-                    updateHabitDetails={updateHabitDetails}
-                />
+                    <TopBar elements={topBarElements} currentElement={currentSelected}
+                            setCurrentElement={setCurrentSelected}/>
+                    <MainHabitCard
+                        habitInfoEditor={habitInfoEditor}
+                        habitCardClassname={habitCardClassname}
+                        setHabitInfoEditor={setHabitInfoEditor}
+                        updateHabitDetails={updateHabitDetails}
+                    />
 
-                <div hidden={currentSelected !== "Details"} className={"pb-10"}>
-                    {checkHabitCompleted(habitInfo.records) ? "Habit is completed today" : "Habit is not completed"}
-                    <div className={"flex flex-row gap-x-2 mt-4"}>
-                        <ToggleHabitIndicator habitId={habitId} callback={updatedToggleState} variant={"HabitDetail"}>
-                            <Button text={"Toggle Habit"}/>
-                        </ToggleHabitIndicator>
-                        <EditValue setShowEditor={setHabitInfoEditor}
-                                   callback={toggleHabitInfoEditor}/>
-                        <DeleteItem buttonText={"Delete Habit"} itemId={habitId} collectionName={"habits"}
-                                    callback={() => setRedirect("/")}/>
+                    <div hidden={currentSelected !== "Details"} className={"pb-10"}>
+                        {checkHabitCompleted(habitInfo.records) ? "Habit is completed today" : "Habit is not completed"}
+                        <div className={"flex flex-row gap-x-2 mt-4"}>
+                            <ToggleHabitIndicator habitId={habitId} callback={updatedToggleState}
+                                                  variant={"HabitDetail"}>
+                                <Button text={"Toggle Habit"}/>
+                            </ToggleHabitIndicator>
+                            <EditValue setShowEditor={setHabitInfoEditor}
+                                       callback={toggleHabitInfoEditor}/>
+                            <DeleteItem buttonText={"Delete Habit"} itemId={habitId} collectionName={"habits"}
+                                        callback={() => setRedirect("/")}/>
+                        </div>
+                        <p>{JSON.stringify(habitInfo)}</p>
+                        <h2>Stats</h2>
+                        <h3>Start
+                            Day: {DateTime.fromSeconds(habitInfo.createdAt.seconds).toISODate()} {DateTime.fromSeconds(habitInfo.createdAt.seconds).toLocaleString(DateTime.TIME_WITH_SHORT_OFFSET)}</h3>
+                        <Stats logs={logs}/>
+                        <HabitCompletedDaysCalendar completedDates={habitInfo.records}/>
                     </div>
-                    <p>{JSON.stringify(habitInfo)}</p>
-                    <h2>Stats</h2>
-                    <h3>Start
-                        Day: {DateTime.fromSeconds(habitInfo.createdAt.seconds).toISODate()} {DateTime.fromSeconds(habitInfo.createdAt.seconds).toLocaleString(DateTime.TIME_WITH_SHORT_OFFSET)}</h3>
-                    <Stats logs={logs}/>
-                    <HabitCompletedDaysCalendar completedDates={habitInfo.records}/>
-                </div>
-
-                <div hidden={currentSelected !== "Logs"}>
-                    <LogTab logEditor={logEditor} setLogEditor={setLogEditor} logs={logs} />
-                </div>
+                    <div hidden={currentSelected !== "Logs"}>
+                        <LogTab prohibitedMessage={"You can only add a log when your habit is already completed and if you haven't already created a log today"} logEditor={logEditor} setLogEditor={setLogEditor} logs={logs} logAllowed={lowEntryAllowed} setLogs={setLogs}/>
+                    </div>
                 </ContentBlurred>
-                <EditorPopup header={"Craeate a new log"} visible={logEditor} validation={logEntryAllowed} onCancel={()=>setLogEditor(false)} onSubmit={submitLog}></EditorPopup>
+                <EditorPopup header={"Create a new log"} visible={logEditor}
+                             validation={() => checkLogEntryAllowed(habitInfo.records, logs)}
+                             onCancel={() => setLogEditor(false)} onSubmit={submitLog}></EditorPopup>
             </div>
 
         )

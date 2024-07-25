@@ -19,14 +19,18 @@ const firebaseConfig = {
 
 // Initialize Firebase
 export const app = initializeApp(firebaseConfig);
+export let db;
+export let auth;
+export let analytics;
 
-// export const db = getFirestore();
-// connectFirestoreEmulator(db, '127.0.0.1', 9098);
-// export const auth = getAuth();
-// connectAuthEmulator(auth, "http://127.0.0.1:9099");
+if (import.meta.env.VITE_FIRESTORE_EMULATOR) {
+    db = getFirestore();
+    connectFirestoreEmulator(db, '127.0.0.1', 9098);
+    auth = getAuth();
+    connectAuthEmulator(auth, "http://127.0.0.1:9099");
+} else {
+    auth = getAuth(app);
+    db = getFirestore(app);
+    analytics = getAnalytics(app);
+}
 
-// online use
-export const auth = getAuth(app);
-export const db = getFirestore(app);
-
-const analytics = getAnalytics(app);

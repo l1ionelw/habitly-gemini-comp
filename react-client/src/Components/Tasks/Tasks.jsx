@@ -58,8 +58,8 @@ export default function Tasks() {
                 <h1>Tasks</h1>
                 <TasksList taskList={tasks} setTaskList={setTasks}/>
             </ContentBlurred>
-            <EditorPopup header={"Add a new task"} visible={showEditor} onCancel={() => setEditor(false)}
-                         validation={validation} onSubmit={onSubmit}/>
+            {showEditor && <EditorPopup header={"Add a new task"} visible={showEditor} onCancel={() => setEditor(false)}
+                                        validation={validation} onSubmit={onSubmit}/>}
         </div>
     );
 }

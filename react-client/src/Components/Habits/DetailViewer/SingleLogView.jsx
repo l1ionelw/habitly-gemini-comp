@@ -5,8 +5,9 @@ import {DateTime} from "luxon";
 import backendDeleteLogs from "../../../Utils/backend/backendDeleteLogs.js";
 import {produce} from "immer";
 import backendUpdateLogs from "../../../Utils/backend/backendUpdateLogs.js";
+import getLogIndexById from '../Utils/getLogIndexById.js';
 
-export default function SingleLogView({setViewState, logInfo, setLogInfo}) {
+export default function SingleLogView({setViewState, setLogs, logInfo, setLogInfo}) {
     const [showEditor, setShowEditor] = useState(false);
 
     async function updateLogContent(updatedTitle, updatedContent) {
@@ -17,6 +18,11 @@ export default function SingleLogView({setViewState, logInfo, setLogInfo}) {
             setLogInfo(produce(draft => {
                 draft.title = updatedTitle;
                 draft.content = updatedContent;
+            }))
+            setLogs(produce(draft => {
+               const logIndex = getLogIndexById(draft, logInfo.id);
+               draft[logIndex].title = updatedTitle;
+               draft[logIndex].content = updatedContent 
             }))
             setShowEditor(false);
         })
@@ -29,6 +35,9 @@ export default function SingleLogView({setViewState, logInfo, setLogInfo}) {
     async function deleteLog() {
         if (window.confirm("Are you sure? This action cannot be undone!")) {
             await backendDeleteLogs(logInfo.habitOwner).then(resp => {
+                setLogs(produce((draft=> {
+                    draft = draft.splice(0,1);
+                })))
                 goBack()
             })
         }

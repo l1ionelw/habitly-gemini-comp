@@ -17,8 +17,10 @@ export default function Habits() {
     const [userData, setUserData] = useState(null);
     const userId = useContext(Auth).user.uid;
     const setHabitsList = useContext(AppContext).setter;
+    const habitsList = useContext(AppContext).getter;
     const [showEditor, setShowEditor] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
+
     const HABIT_TITLE_MAX_LENGTH = 45
     const HABIT_MISSIONSTATEMENT_MAX_LENGTH = 400;
 
@@ -29,7 +31,9 @@ export default function Habits() {
     }, [userId]);
 
     function addNewItemToState(data) {
-        if (!data) return;
+        if (habitsList === "Error" || habitsList === "No Habits") {
+            setHabitsList([]);
+        }
         setHabitsList(produce(draft => {
             draft.unshift(data);
         }))
@@ -65,9 +69,7 @@ export default function Habits() {
         } else {
             setErrorMessage("An error occurred: This habit already exists");
         }
-
     }
-
 
     if (userData) {
         return (
@@ -81,10 +83,10 @@ export default function Habits() {
                     </div>
                     <HabitsList/>
                 </ContentBlurred>
-                <EditorPopup header={"Create a new habit"} visible={showEditor} validation={validation} onCancel={() => setShowEditor(false)}
-                             onSubmit={addNewHabit}/>
+                {showEditor && <EditorPopup header={"Create a new habit"} visible={showEditor} validation={validation}
+                                            onCancel={() => setShowEditor(false)}
+                                            onSubmit={addNewHabit}/>}
             </div>
-
         )
     }
     return <Loading/>

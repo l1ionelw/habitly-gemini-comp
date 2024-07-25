@@ -4,17 +4,18 @@ import LogViewer from "./LogViewer.jsx";
 import SingleLogView from "./SingleLogView.jsx";
 import HabitDetailLogsPanel from "../../Ai/HabitDetailLogsPanel.jsx";
 
-export default function LogTab({setLogEditor, logEditor, logs}) {
+export default function LogTab({prohibitedMessage, setLogEditor, logEditor, logs, setLogs, logAllowed}) {
     const [viewState, setViewState] = useState("AllLogs");
     const [logInfo, setLogInfo] = useState();
     if (viewState === "SingleLog") {
-        return <SingleLogView setViewState={setViewState} logInfo={logInfo} setLogInfo={setLogInfo}/>
+        return <SingleLogView setViewState={setViewState} logInfo={logInfo} setLogInfo={setLogInfo} setLogs={setLogs}/>
     } else {
         return (
             <div>
-                <Button text={"New log"} size={12} onClick={() => setLogEditor(!logEditor)}/>
+                <Button text={"New log"} size={12} onClick={() => setLogEditor(!logEditor)} disabled={!logAllowed} />
+                {!logAllowed && <p>{prohibitedMessage}</p>}
                 <h2>Logs</h2>
-                <HabitDetailLogsPanel/>
+                <HabitDetailLogsPanel />
                 <LogViewer setViewInfo={setLogInfo} setViewState={setViewState} logs={logs} />
             </div>
         )

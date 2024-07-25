@@ -19,7 +19,7 @@ export default function EditorPopup({visible, validation, onCancel, onSubmit, he
     }
     return (
         <div hidden={!visible} className={"centered-xy"}
-             style={{backgroundColor: "lightblue", padding: "1rem 0.5rem", borderRadius: "0.2rem"}}>
+             style={{backgroundColor: "lightblue", padding: "1rem 1rem", borderRadius: "0.2rem"}}>
         <Card>
             <h3>{header}</h3>
             <form>
@@ -34,7 +34,8 @@ export default function EditorPopup({visible, validation, onCancel, onSubmit, he
                               value={content}
                               onChange={(e) => setContent(e.target.value)}
                               maxLength={LOG_CONTENT_MAX_LENGTH}
-                              className={"styled-textarea"}
+                              className={"styled-textarea resize-none"}
+                              style={{fontSize: "20px"}}
                     />
                 </div>
                 <br/>

@@ -8,13 +8,15 @@ import DetailView from "./Components/Habits/DetailViewer/DetailView.jsx";
 import Sidebar from "./Components/Sidebar/Sidebar.jsx";
 import Tasks from "./Components/Tasks/Tasks.jsx";
 import Logout from "./Components/Logout/index.jsx";
-import DailyLog from "./Components/DailyLog/index.jsx";
+import DailyLog from "./Components/DailyLog/DailyLog.jsx";
 import Ai from "./Components/Ai/index.jsx";
+import Error404 from "./Error404.jsx";
 
 export const BrowserRoutes = createBrowserRouter([
         {
             path: "/",
             element: <App/>,
+            errorElement: <Error404/>
         },
         {
             path: "/onboarding/",

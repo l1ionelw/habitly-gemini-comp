@@ -11,6 +11,7 @@ import {AppContext} from "../../Contexts/AppContext.jsx";
 export default function Stats({logs}) {
     const habitInfo = useContext(AppContext).getter;
 
+
     function getTotalTimeSinceStart(formatted) {
         const startDay = DateTime.fromSeconds(habitInfo.createdAt.seconds);
         const today = DateTime.now();
@@ -33,8 +34,11 @@ export default function Stats({logs}) {
 
     function getCurrentStreak() {
         if (habitInfo.records.length === 0) {
-            console.log("no days yet")
+            console.log("no days yet");
             return "0d";
+        }
+        if (habitInfo.records.length === 1) {
+            return "1d";
         }
         // TODO: check this later
         let startRange, endRange;
@@ -69,6 +73,9 @@ export default function Stats({logs}) {
     function getLongestStreak() {
         if (habitInfo.records.length === 0) {
             return 0;
+        }
+        if (habitInfo.records.length === 1) {
+            return "1d";
         }
         // TODO: check this later
         let longestStreak = 0;

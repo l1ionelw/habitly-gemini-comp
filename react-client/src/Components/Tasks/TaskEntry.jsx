@@ -7,8 +7,9 @@ import getTaskIndexById from "../Habits/Utils/getTaskIndexById.jsx";
 import {produce} from "immer";
 import {AppContext} from "../Contexts/AppContext.jsx";
 import updateItemInsideFirestore from "../../Utils/updateItemInsideFirestore.js";
+import taskSorter from './Utils/taskSorter.js';
 
-export default function TaskEntry({task}) {
+export default function TaskEntry({task, filterType, filterOrder}) {
     const taskList = useContext(AppContext).getter;
     const setTaskList = useContext(AppContext).setter;
     const [editor, setEditor] = useState(false);
@@ -18,9 +19,11 @@ export default function TaskEntry({task}) {
         await updateItemInsideFirestore("tasks", task.id, {
             "completed": !task.completed
         })
-        setTaskList(produce((draft) => {
+        let newDraft = produce(taskList, draft => {
             draft[index].completed = !draft[index].completed;
-        }))
+        })
+        
+        setTaskList(taskSorter(newDraft, filterType, filterOrder));
     }
 
 

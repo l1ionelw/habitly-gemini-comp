@@ -4,8 +4,6 @@ import {Auth} from "../Contexts/AuthContext.jsx";
 import LogTab from "../Habits/DetailViewer/LogTab.jsx";
 import EditorPopup from "../UI/EditorPopup.jsx";
 import {DateTime} from "luxon";
-import checkHabitCompleted from "../../Utils/habits/checkHabitCompleted.js";
-import backendAddLogs from "../../Utils/backend/backendAddLogs.js";
 import {produce} from "immer";
 import backendAddDailyLog from "../../Utils/backend/backendAddDailyLog.js";
 
@@ -13,6 +11,7 @@ export default function DailyLog() {
     const userId = useContext(Auth).user.uid;
     const [logs, setLogs] = useState([]);
     const [logEditor, setLogEditor] = useState(false);
+    const entryAllowedToday = logEntryAllowed();
 
     useEffect(() => {
         queryItemFromFirestore("dailylogs", "ownerId", userId).then((data) => {
@@ -43,8 +42,8 @@ export default function DailyLog() {
 
     return (
         <div>
-            <LogTab logs={logs} logEditor={logEditor} setLogEditor={setLogEditor}/>
-            <EditorPopup header={"Create a new daily log"} visible={logEditor} validation={logEntryAllowed} onCancel={()=>setLogEditor(false)} onSubmit={submitLog}></EditorPopup>
+            <LogTab prohibitedMessage={"You can only add one log per day"} logs={logs} logEditor={logEditor} setLogEditor={setLogEditor} logAllowed={entryAllowedToday}/>
+            {logEditor && <EditorPopup header={"Create a new daily log"} visible={logEditor} validation={logEntryAllowed} onCancel={()=>setLogEditor(false)} onSubmit={submitLog}></EditorPopup>}
         </div>
     );
 }
