@@ -1,24 +1,29 @@
-import React, { useContext, useEffect, useMemo, useState } from 'react';
+import React, {useContext, useEffect, useMemo, useState} from 'react';
 import queryItemFromFirestore from "../../Utils/queryItemFromFirestore.js";
-import { Auth } from "../Contexts/AuthContext.jsx";
+import {Auth} from "../Contexts/AuthContext.jsx";
 import TaskEntry from "./TaskEntry.jsx";
-import { AppContext } from "../Contexts/AppContext.jsx";
+import {AppContext} from "../Contexts/AppContext.jsx";
 import taskSorter from './Utils/taskSorter.js';
 
-export default function TasksList() {
+export default function TasksList({filterType, filterOrder}) {
     const taskList = useContext(AppContext).getter;
     const setTaskList = useContext(AppContext).setter;
     const userId = useContext(Auth).user.uid;
     const [loading, setLoading] = useState(true);
-    const [filterType, setFilterType] = useState("Completed"); // time, completed
-    const [filterOrder, setFilterOrder] = useState("Ascending"); // ascending, descending
+
+    useEffect(() => {
+        if (!filterType || !filterOrder) {
+            return;
+        }
+        setTaskList(taskSorter(taskList, filterType, filterOrder));
+    }, [filterType, filterOrder]);
+
 
     useEffect(() => {
         queryItemFromFirestore("tasks", "ownerId", userId).then(data => {
             if (data) {
                 if (data.length === 0) setTaskList("No Tasks");
-                data = taskSorter(data, filterType, filterOrder);
-                setTaskList(data);
+                setTaskList(taskSorter(data, filterType, filterOrder));
             } else {
                 setTaskList("Error");
             }

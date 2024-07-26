@@ -8,6 +8,7 @@ import {produce} from "immer";
 import {AppContext} from "../Contexts/AppContext.jsx";
 import updateItemInsideFirestore from "../../Utils/updateItemInsideFirestore.js";
 import taskSorter from './Utils/taskSorter.js';
+import {DateTime} from "luxon";
 
 export default function TaskEntry({task, filterType, filterOrder}) {
     const taskList = useContext(AppContext).getter;
@@ -25,7 +26,6 @@ export default function TaskEntry({task, filterType, filterOrder}) {
         
         setTaskList(taskSorter(newDraft, filterType, filterOrder));
     }
-
 
     function handleTaskDelete() {
         setTaskList(produce((draft) => {
@@ -52,7 +52,10 @@ export default function TaskEntry({task, filterType, filterOrder}) {
                 className={`self-center ${task.completed ? "item-completed" : "item-incomplete"}`}
             />
             {!editor && <div className={"leading-5"}>
+                <div className={"leading-4"}>
                 <h3>{task.title}</h3>
+                <p>{DateTime.fromSeconds(task.createdAt.seconds).toISODate()} | {DateTime.fromSeconds(task.createdAt.seconds).toLocaleString(DateTime.TIME_WITH_SHORT_OFFSET)}</p>
+                </div>
                 <p>{task.content}</p>
             </div>
             }

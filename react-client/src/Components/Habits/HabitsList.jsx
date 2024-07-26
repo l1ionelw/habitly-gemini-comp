@@ -21,8 +21,7 @@ export default function HabitsList() {
             if (data) {
                 if (data.length === 0) {
                     setHabitsList("No Habits");
-                }
-                else {
+                } else {
                     setHabitsList(data);
                 }
             } else {
@@ -56,16 +55,18 @@ export default function HabitsList() {
                 <h1>My Habits</h1>
                 {habitsList.map((habit) => (
                     <div className={"mb-3"}>
-                        <HabitCardBase
-                            className={generateHabitClassname(habit)}>
-                            <ToggleHabitIndicator habitId={habit.id} callback={updateToggledState}>
-                            <h4>
-                                <a href={`/habits/detail/${habit.id}`}
-                                   className={"unstyled-href"}>{habit.title}</a>
-                            </h4>
-                                <p className={"text-sm"}>{habit.missionStatement}</p>
-                            </ToggleHabitIndicator>
-                        </HabitCardBase>
+                        <div style={{position: "relative"}}>
+                            <HabitCardBase
+                                className={generateHabitClassname(habit)}>
+                                <ToggleHabitIndicator habitId={habit.id} callback={updateToggledState}>
+                                    <h4>
+                                        <a onClick={(e) => e.stopPropagation()} href={`/habits/detail/${habit.id}`}
+                                           className={"unstyled-href"}>{habit.title}</a>
+                                    </h4>
+                                    <p className={"text-sm"}>{habit.missionStatement}</p>
+                                </ToggleHabitIndicator>
+                            </HabitCardBase>
+                        </div>
                     </div>
                 ))}
             </div>

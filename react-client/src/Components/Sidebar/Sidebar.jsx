@@ -1,32 +1,54 @@
 import "./sidebar.css"
 import shouldSelect from "../../Utils/shouldSelect.js";
+import useWindowDimensions from "../../Utils/getWindowDimensions.jsx";
+import { useState } from "react";
 
-export default function Sidebar({children}) {
+export default function Sidebar({ children }) {
+    const { height, width } = useWindowDimensions();
+    const [mobileSideBarClicked, setMobileSideBarClicked] = useState(false);
+    let hideSideBar = mobileSideBarClicked ? false : (width < 615 ? true : false)
+    const sideBarWidth = hideSideBar ? 40 : 250
+    const contentMargin = sideBarWidth + 16;
+
+    const FullSideBar = (<div className={"sidebar"} style={{ width: `${sideBarWidth}px` }}>
+        <h1 className={"ml-3"}>Habitly</h1>
+        <a href={"/"}>
+            <div className={`sidebar-selection ${shouldSelect("/")}`}>Home</div>
+        </a>
+        <a href={"/habits/"}>
+            <div className={`sidebar-selection ${shouldSelect("/habits")}`}>Habits</div>
+        </a>
+        <a href={"/tasks/"}>
+            <div className={`sidebar-selection ${shouldSelect("/tasks")}`}>Tasks</div>
+        </a>
+        <a href={"/dailylog/"}>
+            <div className={`sidebar-selection ${shouldSelect("/dailylog")}`}>Log</div>
+        </a>
+        <a href={"/ai/"}>
+            <div className={`sidebar-selection ${shouldSelect("/ai")}`}>AI</div>
+        </a>
+        <div className={"flex-spacer"}></div>
+        <a href={"/logout/"}>
+            <div className={`mb-2 sidebar-selection ${shouldSelect("/logout")}`}>Log Out</div>
+        </a></div>)
+
+    const MobileSideBar = (<div className={"sidebar cursor-pointer"} style={{ width: `${sideBarWidth}px` }} onClick={() => setMobileSideBarClicked(true)}>
+        <div className={"flex flex-col gap-y-2 ml-4 mt-6"} >
+            <div>S</div>
+            <div>I</div>
+            <div>D</div>
+            <div>E</div>
+            <div>B</div>
+            <div>A</div>
+            <div>R</div>
+        </div>
+    </div>)
+
     return (
         <>
-            <div className={"sidebar"} >
-                <h1 className={"ml-3"}>Habitly</h1>
-                <a href={"/"}>
-                    <div className={`sidebar-selection ${shouldSelect("/")}`}>Home</div>
-                </a>
-                <a href={"/habits/"}>
-                    <div className={`sidebar-selection ${shouldSelect("/habits")}`}>Habits</div>
-                </a>
-                <a href={"/tasks/"}>
-                    <div className={`sidebar-selection ${shouldSelect("/tasks")}`}>Tasks</div>
-                </a>
-                <a href={"/dailylog/"}>
-                    <div className={`sidebar-selection ${shouldSelect("/dailylog")}`}>Log</div>
-                </a>
-                <a href={"/ai/"}>
-                    <div className={`sidebar-selection ${shouldSelect("/ai")}`}>AI</div>
-                </a>
-                <div className={"flex-spacer"}></div>
-                <a href={"/logout/"}>
-                    <div className={`mb-2 sidebar-selection ${shouldSelect("/logout")}`}>Log Out</div>
-                </a>
-            </div>
-            <div className={"sidebar-content"}>
+            {!hideSideBar && FullSideBar}
+            {hideSideBar && MobileSideBar}
+            <div className={"sidebar-content"} style={{ marginLeft: `${contentMargin}px` }}>
                 {children}
             </div>
         </>

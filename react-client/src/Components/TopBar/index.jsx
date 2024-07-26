@@ -11,7 +11,8 @@ export default function TopBar({elements, currentElement, setCurrentElement}) {
         padding: "1rem",
         borderRadius: "0.25rem",
         marginBottom: "1rem",
-        alignItems: "center"
+        alignItems: "center",
+        marginRight: "1rem"
     }
     return (
         <div className={"flex gap-x-5"} style={styles}>
