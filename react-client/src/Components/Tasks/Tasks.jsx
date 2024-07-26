@@ -8,6 +8,7 @@ import {serverTimestamp} from "firebase/firestore";
 import addItemIntoFirestore from "../../Utils/addItemIntoFirestore.js";
 import {Auth} from "../Contexts/AuthContext.jsx";
 import {produce} from "immer";
+import { DateTime } from 'luxon';
 
 export default function Tasks() {
     const userId = useContext(Auth).user.uid;
@@ -45,11 +46,13 @@ export default function Tasks() {
         }
         const transaction = await addItemIntoFirestore("tasks", data);
         data.id = transaction.data;
+        data.createdAt = {seconds: DateTime.now().toSeconds()};
         transaction.status === "Success" ? addState(data) : setErrorMessage("An Error Occurred: " + transaction.data);
         setEditor(false);
     }
 
     function addState(data) {
+        console.log(data);
         setTasks(produce((draft) => {
             draft.unshift(data);
         }));
