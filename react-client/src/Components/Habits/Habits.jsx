@@ -16,24 +16,17 @@ import generateHabitTips from "../Ai/Utils/generateHabitTips.js";
 import AiCard from "../UI/AiCard.jsx";
 
 export default function Habits() {
-    const [userData, setUserData] = useState(null);
+    const userData = useContext(Auth).user;
     const userId = useContext(Auth).user.uid;
     const setHabitsList = useContext(AppContext).setter;
     const habitsList = useContext(AppContext).getter;
     const [showEditor, setShowEditor] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
     const [aiMessage, setAiMessage] = useState("");
-    const [aiGenerateState, setAiGenerateState] = useState("Idle"); // Idle, Loading, Error, Done
+    const [aiGenerateState, setAiGenerateState] = useState("Unloaded"); // Idle, Loading, Error, Done
 
     const HABIT_TITLE_MAX_LENGTH = 45
     const HABIT_MISSIONSTATEMENT_MAX_LENGTH = 400;
-
-    useMemo(() => {
-        getItemFromFirestore(userId, "users").then(data => {
-            setUserData(data.data);
-        });
-    }, [userId]);
-
     function addNewItemToState(data) {
         if (habitsList === "Error" || habitsList === "No Habits") {
             setHabitsList([]);
@@ -83,13 +76,7 @@ export default function Habits() {
                 <ContentBlurred showEditor={showEditor}>
                     <Button text={"Add Habit"} size={15} onClick={() => setShowEditor(!showEditor)} />
                     <div hidden={errorMessage === ""}>{errorMessage}</div>
-                    <div className={"text-emerald-600"}>
-                        <h1>{userData.name}</h1>
-                        <h3>{userData.email}</h3>
-                    </div>
-
-                    {aiGenerateState !== "Idle" && <AiCard message={aiMessage} state={aiGenerateState} setState={setAiGenerateState}/>}
-
+                    {aiGenerateState !== "Unloaded" && <AiCard message={aiMessage} state={aiGenerateState} setState={setAiGenerateState}/>}
                     <HabitsList />
                 </ContentBlurred>
                 {showEditor && <EditorPopup header={"Create a new habit"} visible={showEditor} validation={validation}

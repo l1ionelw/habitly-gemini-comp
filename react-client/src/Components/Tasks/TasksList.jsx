@@ -42,7 +42,6 @@ export default function TasksList({filterType, filterOrder}) {
     }
     return (
         <div>
-            <p>Current Filter Options: {filterType} | {filterOrder}</p>
             {taskList.map((task) =>
                 <TaskEntry task={task} filterType={filterType} filterOrder={filterOrder}/>
             )}
