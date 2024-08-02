@@ -17,12 +17,15 @@ import Stats from "./Stats.jsx";
 import MainHabitCard from "./MainHabitCard.jsx";
 import ContentBlurred from "../../UI/ContentBlurred.jsx";
 import EditorPopup from "../../UI/EditorPopup.jsx";
-import LogTab from "./LogTab.jsx";
+import LogTab from "../../Logs/LogTab.jsx";
 import backendAddLogs from "../../../Utils/backend/backendAddLogs.js";
 import Loading from "../../Loading.jsx";
 import checkLogEntryAllowed from "./Utils/checkLogEntryAllowed.js";
 import AiCard from "../../UI/AiCard.jsx";
 import generateHabitTips from "../../Ai/Utils/generateHabitTips.js";
+import backendUpdateLogs from "../../../Utils/backend/backendUpdateLogs.js";
+import backendDeleteLogs from "../../../Utils/backend/backendDeleteLogs.js";
+import generateLogSummaries from "../../Ai/ComponentUtils/generateLogSummaries.js";
 
 export default function DetailView() {
     const [isLoading, setIsLoading] = useState(true);
@@ -40,6 +43,8 @@ export default function DetailView() {
     const lowEntryAllowed = checkLogEntryAllowed(habitInfo?.records, logs);
     const [aiState, setAiState] = useState("Idle");
     const [aiMessage, setAiMessage] = useState("");
+    const buttonSize = 13;
+
 
     useEffect(() => {
         getItemFromFirestore(habitId, "habits").then(resp => {
@@ -98,6 +103,16 @@ export default function DetailView() {
         setLogEditor(false);
     }
 
+    async function updateLog(id, newTitle, newContent, habitOwner) {
+        console.log("updating habit log");
+        return backendUpdateLogs(id, newTitle, newContent, habitOwner)
+    }
+
+    async function deleteLog(habitOwner) {
+        console.log("deleting habit log");
+        return backendDeleteLogs(habitOwner)
+    }
+
     function generateAiTips() {
         setAiState("Loading");
         generateHabitTips(habitInfo.title, habitInfo.missionStatement).then((response) => {
@@ -108,6 +123,15 @@ export default function DetailView() {
             console.log(err);
             setAiState("Error")
         }))
+    }
+
+    async function callGenerateLogSummary(type) {
+        setAiState("Loading");
+        await generateLogSummaries(logs, type).then((resp) => {
+            console.log(resp)
+            setAiMessage(resp);
+        })
+        setAiState("Done");
     }
 
     if (isLoading) {
@@ -155,7 +179,30 @@ export default function DetailView() {
                         <LogTab
                             prohibitedMessage={"You can only add a log when your habit is already completed and if you haven't already created a log today"}
                             logEditor={logEditor} setLogEditor={setLogEditor} logs={logs} logAllowed={lowEntryAllowed}
-                            setLogs={setLogs}/>
+                            setLogs={setLogs} updateFunction={updateLog} deleteFunction={deleteLog}>
+                            {
+                                aiState !== "Unloaded" &&
+                                <AiCard
+                                    message={aiMessage}
+                                    state={aiState}
+                                    setState={setAiState}
+                                    onClickAction={generateLogSummaries}>
+                                    <p>Generate log summaries by: </p>
+                                    <div className={"flex gap-x-2 gap-y-2 flex-wrap"}>
+                                        <Button text={"Last Week"} size={buttonSize}
+                                                onClick={() => callGenerateLogSummary("1Week")}/>
+                                        <Button text={"Last Month"} size={buttonSize}
+                                                onClick={() => callGenerateLogSummary("1Month")}/>
+                                        <Button text={"Last 3 Months"} size={buttonSize}
+                                                onClick={() => callGenerateLogSummary("3Months")}/>
+                                        <Button text={"Last 6 Months"} size={buttonSize}
+                                                onClick={() => callGenerateLogSummary("6Months")}/>
+                                        <Button text={"Last Year"} size={buttonSize}
+                                                onClick={() => callGenerateLogSummary("1Year")}/>
+                                    </div>
+                                </AiCard>
+                            }
+                        </LogTab>
                     </div>
                 </ContentBlurred>
                 <EditorPopup header={"Create a new log"} visible={logEditor}

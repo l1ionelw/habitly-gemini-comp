@@ -1,7 +1,8 @@
 import getUserIdToken from "./getUserIdToken.js";
 import {API_URL} from "../../main.jsx";
 
-export default async function backendAddDailyLog(title, content) {
+export default async function backendDeleteDailyLog(logId) {
+    console.log("sending request to delete daily log");
     let status = "Loading";
     let response = null;
     let idToken = await getUserIdToken();
@@ -9,13 +10,13 @@ export default async function backendAddDailyLog(title, content) {
         console.log(idToken.data);
         return
     }
-    await fetch(`${API_URL}/api/dailylogs/add/`, {
+    await fetch(`${API_URL}/api/dailylogs/delete/`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
             "Authorization": idToken.data
         },
-        body: JSON.stringify({"title": title, "content": content})
+        body: JSON.stringify({"logId": logId})
     }).then(async resp => {
         if (resp.status !== 200) {
             status = "Error"

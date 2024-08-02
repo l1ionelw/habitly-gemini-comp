@@ -26,7 +26,7 @@ export default function Sidebar({children}) {
             <div className={`sidebar-selection ${shouldSelect("/tasks")}`}>Tasks</div>
         </a>
         <a href={"/dailylog/"}>
-            <div className={`sidebar-selection ${shouldSelect("/dailylog")}`}>Log</div>
+            <div className={`sidebar-selection ${shouldSelect("/dailylog")}`}>Daily Log</div>
         </a>
         <a href={"/ai/"}>
             <div className={`sidebar-selection ${shouldSelect("/ai")}`}>AI</div>

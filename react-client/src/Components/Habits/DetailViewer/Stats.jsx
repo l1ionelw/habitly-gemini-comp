@@ -10,9 +10,8 @@ import {AppContext} from "../../Contexts/AppContext.jsx";
 
 export default function Stats({logs}) {
     const habitInfo = useContext(AppContext).getter;
-
-
     function getTotalTimeSinceStart(formatted) {
+        console.log("getting total time since start");
         const startDay = DateTime.fromSeconds(habitInfo.createdAt.seconds);
         const today = DateTime.now();
         const diff = today.diff(startDay, ["days", "hours", "minutes"]);
@@ -20,19 +19,23 @@ export default function Stats({logs}) {
     }
 
     function getDaysCompleted() {
+        console.log("getting total days completed");
         if (!habitInfo.records) return 0;
         return habitInfo.records.length;
     }
 
     function getDaysIncomplete() {
+        console.log("getting days incompleted");
         return getTotalTimeSinceStart().days - getDaysCompleted();
     }
 
     function getLogsCount() {
+        console.log("getting logs count");
         return logs.length;
     }
 
     function getCurrentStreak() {
+        console.log("getting current streak");
         if (habitInfo.records.length === 0) {
             console.log("no days yet");
             return "0d";
@@ -71,6 +74,7 @@ export default function Stats({logs}) {
     }
 
     function getLongestStreak() {
+        console.log("getting longest streak");
         if (habitInfo.records.length === 0) {
             return 0;
         }

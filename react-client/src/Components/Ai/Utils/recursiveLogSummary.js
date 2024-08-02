@@ -7,10 +7,6 @@ const systemPrompt = "SYSTEM: You are to address the user directly. You will be 
 export default async function recursiveLogSummary(summaries, dayRange, targetDays, actuallyUseAi) {
     console.log(summaries.length);
     console.log(targetDays);
-    if (summaries.length < targetDays) {
-        console.log("shrinking target days size because its larger than the data set");
-        targetDays = summaries.length;
-    }
     console.log("SUMMARY COMPILATION START");
     let summaryArray = []
     const totalEndDate = DateTime.now().startOf("day").minus({ days: targetDays });

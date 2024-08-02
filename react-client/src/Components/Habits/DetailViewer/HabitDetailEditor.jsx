@@ -16,12 +16,14 @@ export default function HabitDetailEditor({title, missionStatement, setShowEdito
         <div>
             <form onSubmit={handleSubmit}>
                 <input placeholder={updatedTitle}
+                       value={updatedTitle}
                        onChange={(e) => setUpdatedTitle(e.target.value)}
                        className={"styled-input bg-transparent"}
                        style={{width: textBoxWidth}}
                 />
                 <br/>
                 <textarea placeholder={updatedMissionStatement}
+                          value={updatedMissionStatement}
                           onChange={(e) => setUpdatedMissionStatement(e.target.value)}
                           className={"border-none resize-none bg-transparent"}
                           style={{width: textBoxWidth, padding: "0.1rem 0.5rem", height: "40px"}}

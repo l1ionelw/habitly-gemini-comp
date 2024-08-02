@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const admin = require('firebase-admin');
-const {getFirestore, connectFirestoreEmulator, serverTimestamp} = require("firebase-admin/firestore");
+const {getFirestore} = require("firebase-admin/firestore");
 const serviceAccount = require('../gemini-comp-f9cc5-firebase-adminsdk.json');
 const {getAuth} = require("firebase-admin/auth");
 const getItemFromFirestore = require("../Utils/getItemFromFirestore");
@@ -233,7 +233,7 @@ router.post("/logs/update/", verifyIdToken, async (req, res, next) => {
         "content": new_content.trim()
     }
     console.log(data);
-    await updateItemInsideFirestore(db, "logs", logId, data).then(e => {
+    await updateItemInsideFirestore(db, "logs", logId, data).then((resp) => {
         return res.send({"status": "Success", "message": "Successfully done"})
     })
 })
@@ -287,7 +287,7 @@ router.post("/logs/delete/", verifyIdToken, async (req, res, next) => {
     return next({"message": "This operation is invalid", "statusCode": 403});
 })
 
-router.post("/dailylog/add/", verifyIdToken, async (req, res, next) => {
+router.post("/dailylogs/add/", verifyIdToken, async (req, res, next) => {
     let title = req.body.title;
     let content = req.body.content;
     let uid = req.body.uid;
@@ -332,5 +332,104 @@ router.post("/dailylog/add/", verifyIdToken, async (req, res, next) => {
         return res.send(data);
     }
     return next({"message": "This operation is invalid", "statusCode": 403});
+})
+
+router.post("/dailylogs/delete/", verifyIdToken, async (req, res, next) => {
+    console.log("delete daily log");
+    const uid = req.body.uid;
+    const logId = req.body.logId;
+    console.log(logId);
+    let userTimeZone = await getItemFromFirestore(db, uid, "users");
+    if (userTimeZone.status !== "Success") {
+        return next({"message": "An error occurred while fetching user profile", "statusCode": 424});
+    }
+    userTimeZone = userTimeZone.data.timezone;
+    console.log(userTimeZone);
+
+    let thisLogToDelete;
+    const logsRef = db.collection("dailylogs").doc(logId);
+    await logsRef.get().then((doc) => {
+        if (doc.exists) {
+            thisLogToDelete = doc.data();
+            thisLogToDelete.id = doc.id;
+        } else {
+            return next({"message": "This log doesn't exist", "statusCode": 403})
+        }
+    }).catch((err) => {
+        return next({"message": err.message, "statusCode": 404})
+    })
+
+    if (thisLogToDelete.ownerId !== uid) {
+        return next({"message": "You are not authorized to modify this log", "statusCode": 403})
+    }
+
+    const currentDay = DateTime.now().setZone(userTimeZone).startOf("day");
+    const logCreatedDay = DateTime.fromSeconds(thisLogToDelete.createdAt.seconds, {zone: userTimeZone}).startOf("day");
+
+    if (logCreatedDay.equals(currentDay)) {
+        console.log("can be deleted");
+        let response;
+        await deleteItemFromFirestore(db, "dailylogs", logId).then(e => {
+            response = e;
+        });
+        console.log(response);
+        if (response.status === "Success") {
+            return res.send({"status": "Success", "message": "Deleted Successfully"});
+        }
+        return next({"message": "An error occurred while trying to delete the document"});
+    }
+    console.log("cant be deleted");
+    return next({"message": "This operation is invalid", "statusCode": 403});
+})
+
+router.post("/dailylogs/update/", verifyIdToken, async (req, res, next) => {
+    const logId = req.body.logId;
+    const new_title = req.body.title ? req.body.title : "";
+    const new_content = req.body.content ? req.body.content : "";
+    const uid = req.body.uid
+
+    let userTimeZone = await getItemFromFirestore(db, uid, "users");
+    if (userTimeZone.status !== "Success") {
+        return next({"message": "An error occurred while fetching user profile", "statusCode": 424});
+    }
+    userTimeZone = userTimeZone.data.timezone;
+    console.log(userTimeZone);
+
+    let lastSubmittedLog;
+    const logsRef = db.collection("dailylogs").doc(logId);
+    await logsRef.get().then((doc) => {
+        if (doc.exists) {
+            lastSubmittedLog = doc.data();
+            lastSubmittedLog.id = doc.id;
+        } else {
+            return next({"message": "This log doesn't exist", "statusCode": 403})
+        }
+    }).catch((err) => {
+        return next({"message": err.message, "statusCode": 404})
+    })
+
+    if (lastSubmittedLog.ownerId !== uid) {
+        return next({"message": "You are not authorized to modify this log", "statusCode": 403})
+    }
+
+
+    const currentDay = DateTime.now().setZone(userTimeZone).startOf("day");
+    const logCreatedDay = DateTime.fromSeconds(lastSubmittedLog.createdAt.seconds, {zone: userTimeZone}).startOf("day");
+
+    if (logCreatedDay.equals(currentDay)) {
+        const data = {
+            "title": new_title.trim(),
+            "content": new_content.trim()
+        }
+        console.log(data);
+        await updateItemInsideFirestore(db, "dailylogs", logId, data).then((resp) => {
+            return res.send({"status": "Success", "message": "Successfully done"})
+        }).catch(e=> {
+            return next({"message": e.message});
+        })
+    } else {
+        console.log("cant be modified");
+        return next({"message": "This operation is invalid", "statusCode": 403});
+    }
 })
 module.exports = router;
