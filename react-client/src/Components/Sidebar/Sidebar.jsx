@@ -6,7 +6,6 @@ import {Auth} from "../Contexts/AuthContext.jsx";
 
 export default function Sidebar({children}) {
     const user = useContext(Auth).user;
-    console.log(user);
     const {height, width} = useWindowDimensions();
     const [mobileSideBarClicked, setMobileSideBarClicked] = useState(false);
     const isSmall = width < 615
@@ -16,9 +15,6 @@ export default function Sidebar({children}) {
 
     const FullSideBar = (<div className={"sidebar"} style={{width: `${sideBarWidth}px`}}>
         <h1 className={"ml-3"}>Habitly</h1>
-        <a href={"/"}>
-            <div className={`sidebar-selection ${shouldSelect("/")}`}>Home</div>
-        </a>
         <a href={"/habits/"}>
             <div className={`sidebar-selection ${shouldSelect("/habits")}`}>Habits</div>
         </a>
@@ -27,9 +23,6 @@ export default function Sidebar({children}) {
         </a>
         <a href={"/dailylog/"}>
             <div className={`sidebar-selection ${shouldSelect("/dailylog")}`}>Daily Log</div>
-        </a>
-        <a href={"/ai/"}>
-            <div className={`sidebar-selection ${shouldSelect("/ai")}`}>AI</div>
         </a>
         {isSmall && <div className={`sidebar-selection cursor-pointer`} onClick={()=>setMobileSideBarClicked(false)}>Collapse Sidebar</div>}
         <div className={"flex-spacer"}></div>

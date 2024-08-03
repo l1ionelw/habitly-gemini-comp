@@ -11,7 +11,7 @@ export default function LogTab({children, prohibitedMessage, setLogEditor, logEd
     } else {
         return (
             <div>
-                <Button text={"New log"} size={12} onClick={() => setLogEditor(!logEditor)} disabled={!logAllowed} />
+                <Button text={"New log"} size={15} onClick={() => setLogEditor(!logEditor)} disabled={!logAllowed} variant={"primary"}/>
                 {!logAllowed && <p>{prohibitedMessage}</p>}
                 <h2>Logs</h2>
                 <div className={"mb-5"}>

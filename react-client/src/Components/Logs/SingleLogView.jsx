@@ -2,13 +2,12 @@ import React, {useState} from 'react';
 import Button from "../UI/Button.jsx";
 import HabitDetailEditor from "../Habits/DetailViewer/HabitDetailEditor.jsx";
 import {DateTime} from "luxon";
-import backendDeleteLogs from "../../Utils/backend/backendDeleteLogs.js";
 import {produce} from "immer";
-import backendUpdateLogs from "../../Utils/backend/backendUpdateLogs.js";
 import getLogIndexById from '../Habits/Utils/getLogIndexById.js';
 
 export default function SingleLogView({setViewState, setLogs, logInfo, setLogInfo, updateFunction, deleteFunction}) {
     const [showEditor, setShowEditor] = useState(false);
+    console.log(logInfo)
 
     async function updateLogContent(updatedTitle, updatedContent) {
         updatedTitle = updatedTitle.trim();
@@ -60,7 +59,7 @@ export default function SingleLogView({setViewState, setLogs, logInfo, setLogInf
 
         {!showEditor && <>
             <h1>{logInfo.title}</h1>
-            <p>{logInfo.content}</p>
+            <div>{logInfo.content.split(/\n/).map(line => <div key={line}>{line}</div>)}</div>
         </>}
         {showEditor && <HabitDetailEditor
             title={logInfo.title}

@@ -137,10 +137,10 @@ export default function DetailView() {
     if (isLoading) {
         return <Loading/>
     }
-
     if (redirect) {
         return <Navigate to={redirect}/>
     }
+
     if (habitInfo) {
         return (
             <div className={"pt-4"}>
@@ -163,8 +163,9 @@ export default function DetailView() {
                             </ToggleHabitIndicator>
                             <EditValue setShowEditor={setHabitInfoEditor}
                                        callback={toggleHabitInfoEditor}/>
-                            <DeleteItem buttonText={"Delete Habit"} itemId={habitId} collectionName={"habits"}
-                                        callback={() => setRedirect("/")}/>
+                            <DeleteItem buttonText={"Delete Habit"} variant={"Habits"} itemId={habitId}
+                                        collectionName={"habits"}
+                                        callback={()=>setRedirect("/habits")}/>
                         </div>
                         {aiState !== "Unloaded" &&
                             <AiCard state={aiState} setState={setAiState} onClickAction={() => generateAiTips()}

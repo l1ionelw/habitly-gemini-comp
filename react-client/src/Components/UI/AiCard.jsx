@@ -1,10 +1,10 @@
 import Button from "./Button";
 import HabitCardBase from "./HabitCardBase";
 
-export default function AiCard({ children, message, state, setState, onClickAction }) {
+export default function AiCard({ children, message, state, setState, onClickAction, className }) {
     // possible states: Idle, Unloaded, Error, Loading, Done
     return (
-        <HabitCardBase className={"bg-violet-300"}>
+        <HabitCardBase className={`bg-violet-300 ${className}`}>
             <div className={"flex"}>
                 <h3>AI Helper</h3>
                 <div className={"flex-spacer"}></div>

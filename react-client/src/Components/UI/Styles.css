@@ -3,12 +3,16 @@
     border-radius: 0.4rem;
     display: inline-block;
     font-family: "Montserrat", sans-serif;
-    cursor: pointer;
     user-select: none;
     transition-duration: 150ms;
+    line-height: 15px;
+
 }
 .styled-button:hover {
-    opacity: 0.7;
+    opacity: 0.8;
+}
+.styled-button-disabled:hover {
+    opacity: 0.25;
 }
 
 .card {

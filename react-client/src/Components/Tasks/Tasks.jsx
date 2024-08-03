@@ -12,7 +12,6 @@ import { DateTime } from 'luxon';
 
 export default function Tasks() {
     const userId = useContext(Auth).user.uid;
-    const tasks = useContext(AppContext).getter;
     const setTasks = useContext(AppContext).setter;
     const [showEditor, setEditor] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
@@ -72,7 +71,7 @@ export default function Tasks() {
         <div className={`pt-5`}>
             <ContentBlurred showEditor={showEditor}>
                 <div className={"flex gap-x-3"}>
-                    <Button text={"Add Task"} size={15} onClick={() => setEditor(!showEditor)}/>
+                    <Button text={"New Task"} size={15} onClick={() => setEditor(!showEditor)} variant={"primary"}/>
                     <Button text={`Filter Type: ${filterType}`} size={15}
                             onClick={() => setFilterTypeIndex(filterTypeIndex + 1)}/>
                     <Button text={`Filter Order: ${filterOrder}`} size={15}

@@ -22,7 +22,7 @@ export default function EditorPopup({ visible, validation, onCancel, onSubmit, h
             style={{ backgroundColor: "lightblue", padding: "1rem 1rem", borderRadius: "0.2rem" }}>
             <Card>
                 <h3>{header}</h3>
-                <form>
+                <form onSubmit={(e)=>e.preventDefault()}>
                     <div className={'flex flex-col'}>
                         <div className={"flex flex-col"} style={{lineHeight: "0px"}}>
                             <input
@@ -51,9 +51,9 @@ export default function EditorPopup({ visible, validation, onCancel, onSubmit, h
                     </div>
                     <br />
                     <div className={"flex"}>
-                        <Button text={"Cancel"} size={15} onClick={onCancel} className={"ml-8"} />
+                        <Button text={"Cancel"} size={15} onClick={onCancel} className={"ml-8 bg-lime-100 "} />
                         <div className={"flex-spacer"}></div>
-                        <Button text={"Add"} size={15} onClick={submitAction} className={"mr-8"} />
+                        <Button text={"Submit"} size={15} onClick={submitAction} className={"mr-8 bg-lime-100"} />
                     </div>
                 </form>
             </Card>

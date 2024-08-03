@@ -229,8 +229,7 @@ router.post("/logs/update/", verifyIdToken, async (req, res, next) => {
     console.log(lastSubmittedLog);
     // update log contents with new contents
     const data = {
-        "title": new_title.trim(),
-        "content": new_content.trim()
+        "title": new_title.trim(), "content": new_content.trim()
     }
     console.log(data);
     await updateItemInsideFirestore(db, "logs", logId, data).then((resp) => {
@@ -291,6 +290,8 @@ router.post("/dailylogs/add/", verifyIdToken, async (req, res, next) => {
     let title = req.body.title;
     let content = req.body.content;
     let uid = req.body.uid;
+    title = title.trim();
+    content = content.trim();
     // todo: check if title and content meet max character limit
     // todo: for ALL queries, check if the query is undefined (first ever query).
 
@@ -320,8 +321,8 @@ router.post("/dailylogs/add/", verifyIdToken, async (req, res, next) => {
 
     if (currentDate.diff(lastLogDate) >= 1) {
         let data = {
-            "title": title.trim(),
-            "content": content.trim(),
+            "title": title,
+            "content": content,
             "ownerId": uid,
             "createdAt": admin.firestore.FieldValue.serverTimestamp()
         }
@@ -418,18 +419,45 @@ router.post("/dailylogs/update/", verifyIdToken, async (req, res, next) => {
 
     if (logCreatedDay.equals(currentDay)) {
         const data = {
-            "title": new_title.trim(),
-            "content": new_content.trim()
+            "title": new_title.trim(), "content": new_content.trim()
         }
         console.log(data);
         await updateItemInsideFirestore(db, "dailylogs", logId, data).then((resp) => {
             return res.send({"status": "Success", "message": "Successfully done"})
-        }).catch(e=> {
+        }).catch(e => {
             return next({"message": e.message});
         })
     } else {
         console.log("cant be modified");
         return next({"message": "This operation is invalid", "statusCode": 403});
     }
+})
+
+router.post("/habit/delete/", verifyIdToken, async (req, res, next) => {
+    let uid = req.body.uid;
+    let habitId = req.body.habitId;
+    let habitDoc;
+    const habitRef = db.collection("habits").doc(habitId);
+    await habitRef.get().then((doc) => {
+        if (!doc.exists) return next({"message": "This document does not exist", "statusCode": 404})
+        habitDoc = doc.data();
+        habitDoc.id = doc.id;
+    })
+    if (habitDoc.ownerId !== uid) return next({
+        "message": "You are not authorized to modify this document",
+        "statusCode": 403
+    })
+
+    await deleteItemFromFirestore(db, "habits", habitId);
+
+    const habitLogsQuery = db.collection("logs").where("habitOwner", "==", habitId);
+    await habitLogsQuery.get().then((querySnapshot) => {
+        const promises = [];
+        querySnapshot.forEach((logItem) => {
+            promises.push(logItem.ref.delete());
+        })
+        Promise.all(promises);
+    })
+    return res.send({"message": "Successfully deleted habit and corresponding logs"})
 })
 module.exports = router;

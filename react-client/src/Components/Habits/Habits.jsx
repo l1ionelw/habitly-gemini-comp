@@ -1,7 +1,6 @@
-import { useContext, useMemo, useState } from "react";
+import { useContext, useState } from "react";
 import { Auth } from "../Contexts/AuthContext.jsx";
 import Loading from "../Loading.jsx";
-import getItemFromFirestore from "../../Utils/getItemFromFirestore.js";
 import HabitsList from "./HabitsList.jsx";
 import Button from "../UI/Button.jsx";
 import ContentBlurred from "../UI/ContentBlurred.jsx";
@@ -74,9 +73,9 @@ export default function Habits() {
         return (
             <div className={`pt-5`}>
                 <ContentBlurred showEditor={showEditor}>
-                    <Button text={"Add Habit"} size={15} onClick={() => setShowEditor(!showEditor)} />
+                    <Button text={"New Habit"} size={15} onClick={() => setShowEditor(!showEditor)} variant={"primary"}/>
                     <div hidden={errorMessage === ""}>{errorMessage}</div>
-                    {aiGenerateState !== "Unloaded" && <AiCard message={aiMessage} state={aiGenerateState} setState={setAiGenerateState}/>}
+                    {aiGenerateState !== "Unloaded" && <AiCard message={aiMessage} state={aiGenerateState} setState={setAiGenerateState} className={"mt-5"}/>}
                     <HabitsList />
                 </ContentBlurred>
                 {showEditor && <EditorPopup header={"Create a new habit"} visible={showEditor} validation={validation}
