@@ -10,6 +10,17 @@ import {AppContext} from "../../Contexts/AppContext.jsx";
 
 export default function Stats({logs}) {
     const habitInfo = useContext(AppContext).getter;
+
+    function trycatch(execute) {
+        let value;
+        try {
+            value = execute()
+        } catch (err) {
+            console.log(err)
+            value = -1;
+        }
+        return value;
+    }
     function getTotalTimeSinceStart(formatted) {
         console.log("getting total time since start");
         const startDay = DateTime.fromSeconds(habitInfo.createdAt.seconds);
@@ -102,9 +113,9 @@ export default function Stats({logs}) {
     return (
         <div>
             <div className={"flex flex-row gap-x-3 mb-3"}>
-                <Statcard title={"Current Streak"} content={getCurrentStreak()}
+                <Statcard title={"Current Streak"} content={trycatch(getCurrentStreak)}
                           svgPath={<FireSVG fill={"#ff9600"}/>}/>
-                <Statcard title={"Longest Streak"} content={getLongestStreak()}
+                <Statcard title={"Longest Streak"} content={trycatch(getLongestStreak)}
                           svgPath={<FireSVG fill={"#4eb600"}/>}/>
 
                 <Statcard title={"Days completed"} content={getDaysCompleted()} svgPath={<CheckmarkSVG/>}/>
