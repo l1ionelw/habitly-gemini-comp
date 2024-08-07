@@ -460,4 +460,5 @@ router.post("/habit/delete/", verifyIdToken, async (req, res, next) => {
     })
     return res.send({"message": "Successfully deleted habit and corresponding logs"})
 })
+
 module.exports = router;

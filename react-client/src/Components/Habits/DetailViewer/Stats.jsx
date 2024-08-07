@@ -21,6 +21,7 @@ export default function Stats({logs}) {
         }
         return value;
     }
+
     function getTotalTimeSinceStart(formatted) {
         console.log("getting total time since start");
         const startDay = DateTime.fromSeconds(habitInfo.createdAt.seconds);
@@ -47,85 +48,61 @@ export default function Stats({logs}) {
 
     function getCurrentStreak() {
         console.log("getting current streak");
-        if (habitInfo.records.length === 0) {
-            console.log("no days yet");
-            return "0d";
-        }
-        if (habitInfo.records.length === 1) {
-            return "1d";
-        }
-        // TODO: check this later
-        let startRange, endRange;
-        let today = DateTime.now().startOf("day");
-        let lastCompleted = DateTime.fromMillis(habitInfo.records[0]).startOf("day");
-        let compDate;
-        let startIndex = 1;
-        if (today.equals(lastCompleted)) {
-            startRange = today;
-            compDate = today;
-        }
-        if (today.diff(lastCompleted, ["days"]).days === 1) {
-            startRange = lastCompleted;
-            compDate = lastCompleted;
-        }
-        if (!compDate) {
-            console.log("Habit wasn't completed today or yesterday, no streak");
-            return 0
-        }
+        console.log(habitInfo.records);
+        if (!habitInfo || habitInfo.records.length === 0) return 0;
 
-        for (let i = startIndex; i < habitInfo.records.length; i++) {
-            let thisDate = DateTime.fromMillis(habitInfo.records[i]).startOf("day");
-            if (compDate.diff(thisDate, ["days"]).days !== 1) {
-                endRange = compDate;
-                break
-            }
-            compDate = thisDate;
+        const todayDiff = DateTime.now().startOf("day").diff(DateTime.fromMillis(habitInfo.records[0]).startOf("day"), ["days"]).days;
+        if (todayDiff > 1) return 0;
+
+        let pointer = 0;
+        let streak = 1;
+        while (pointer < habitInfo.records.length - 1) {
+            const thisTimestamp = DateTime.fromMillis(habitInfo.records[pointer]).startOf("day");
+            const comparisonTimestamp = DateTime.fromMillis(habitInfo.records[pointer + 1]).startOf("day");
+            const diff = thisTimestamp.diff(comparisonTimestamp, ["days"]).days;
+            console.log(diff);
+            if (diff > 1) return streak;
+            streak++;
+            pointer++;
         }
-        return startRange.diff(endRange, ["days"]).days + 1;
+        return streak;
     }
 
     function getLongestStreak() {
         console.log("getting longest streak");
-        if (habitInfo.records.length === 0) {
-            return 0;
-        }
-        if (habitInfo.records.length === 1) {
-            return "1d";
-        }
-        // TODO: check this later
-        let longestStreak = 0;
-        let startRange = DateTime.fromMillis(habitInfo.records[0]).startOf("day");
-        let compDate = DateTime.fromMillis(habitInfo.records[0]).startOf("day");
-        let endRange;
-
-        for (let day of habitInfo.records) {
-            let thisDate = DateTime.fromMillis(day).startOf("day");
-            if (compDate.diff(thisDate, ["day"]).days !== 1) {
-                endRange = compDate;
-                longestStreak = Math.max(longestStreak, startRange.diff(endRange, ["days"]).days + 1);
-                startRange = thisDate;
+        if (!habitInfo || habitInfo.records.length === 0) return 0;
+        let pointer = 0;
+        let streak = 1;
+        let maxStreak = 0;
+        while (pointer < habitInfo.records.length - 1) {
+            const thisTimestamp = DateTime.fromMillis(habitInfo.records[pointer]).startOf("day");
+            const comparisonTimestamp = DateTime.fromMillis(habitInfo.records[pointer + 1]).startOf("day");
+            const diff = thisTimestamp.diff(comparisonTimestamp, ["days"]).days;
+            if (diff > 1) {
+                maxStreak = Math.max(maxStreak, streak);
+                streak = 0;
             }
-            compDate = thisDate;
+            streak++;
+            pointer++;
         }
-        return longestStreak;
+        maxStreak = Math.max(maxStreak, streak);
+        return maxStreak;
     }
 
-    return (
-        <div>
-            <div className={"flex flex-row gap-x-3 mb-3"}>
-                <Statcard title={"Current Streak"} content={trycatch(getCurrentStreak)}
-                          svgPath={<FireSVG fill={"#ff9600"}/>}/>
-                <Statcard title={"Longest Streak"} content={trycatch(getLongestStreak)}
-                          svgPath={<FireSVG fill={"#4eb600"}/>}/>
+    return (<div>
+        <div className={"flex flex-row gap-x-3 mb-3"}>
+            <Statcard title={"Current Streak"} content={trycatch(getCurrentStreak)}
+                      svgPath={<FireSVG fill={"#ff9600"}/>}/>
+            <Statcard title={"Longest Streak"} content={trycatch(getLongestStreak)}
+                      svgPath={<FireSVG fill={"#4eb600"}/>}/>
 
-                <Statcard title={"Days completed"} content={getDaysCompleted()} svgPath={<CheckmarkSVG/>}/>
-            </div>
-            <div className={"flex flex-row gap-x-3 mb-3"}>
-                <Statcard title={"Days not completed"} content={getDaysIncomplete()} svgPath={<XmarkSVG/>}/>
-                <Statcard title={"Days since started"} content={getTotalTimeSinceStart(true)}
-                          svgPath={<CalendarDaysSVG/>}/>
-                <Statcard title={"Total log entries"} content={getLogsCount()} svgPath={<BookLogJournalSVG/>}/>
-            </div>
+            <Statcard title={"Days completed"} content={getDaysCompleted()} svgPath={<CheckmarkSVG/>}/>
         </div>
-    );
+        <div className={"flex flex-row gap-x-3 mb-3"}>
+            <Statcard title={"Days not completed"} content={getDaysIncomplete()} svgPath={<XmarkSVG/>}/>
+            <Statcard title={"Days since started"} content={getTotalTimeSinceStart(true)}
+                      svgPath={<CalendarDaysSVG/>}/>
+            <Statcard title={"Total log entries"} content={getLogsCount()} svgPath={<BookLogJournalSVG/>}/>
+        </div>
+    </div>);
 }
