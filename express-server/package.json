@@ -1,7 +1,7 @@
 {
   "scripts": {
     "offline": "cross-env FIRESTORE_EMULATOR_HOST=\"localhost:9098\" node server.js",
-    "start": "node server.js",
+    "production": "cross-env MODE=production node server.js",
     "dev": "node server.js",
     "test": "jest"
   },
@@ -10,6 +10,7 @@
     "@sequelize/sqlite3": "^7.0.0-alpha.41",
     "cors": "^2.8.5",
     "cross-env": "^7.0.3",
+    "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "firebase-admin": "^12.2.0",
     "luxon": "^3.4.4",
