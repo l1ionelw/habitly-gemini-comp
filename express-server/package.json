@@ -7,7 +7,6 @@
   },
   "dependencies": {
     "@google-cloud/firestore": "^7.9.0",
-    "@sequelize/sqlite3": "^7.0.0-alpha.41",
     "cors": "^2.8.5",
     "cross-env": "^7.0.3",
     "dotenv": "^16.4.5",
@@ -15,7 +14,6 @@
     "firebase-admin": "^12.2.0",
     "luxon": "^3.4.4",
     "morgan": "^1.10.0",
-    "sequelize": "^6.37.3"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",

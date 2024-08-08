@@ -1,8 +1,6 @@
 const express = require('express');
 const cors = require('cors');
 const morgan = require("morgan");
-const { Sequelize, DataTypes } = require("sequelize");
-const { User } = require("./db");
 
 
 // init 
@@ -18,17 +16,17 @@ app.use('/api', api);
 
 
 // Dates returned UTC
-let sequelize = new Sequelize({
-    dialect: "sqlite",
-    storage: './db.sqlite',
-});
-
-User.init(
-    {
-        email: { type: DataTypes.STRING, allowNull: false },
-        name: { type: DataTypes.STRING, allowNull: true },
-        timezone: { type: DataTypes.STRING, allowNull: false },
-    }, { sequelize, modelName: "users" });
+// let sequelize = new Sequelize({
+//     dialect: "sqlite",
+//     storage: './db.sqlite',
+// });
+//
+// User.init(
+//     {
+//         email: { type: DataTypes.STRING, allowNull: false },
+//         name: { type: DataTypes.STRING, allowNull: true },
+//         timezone: { type: DataTypes.STRING, allowNull: false },
+//     }, { sequelize, modelName: "users" });
 
 const errorHandler = (err, req, res, next) => {
     err.message = err.message ? err.message : "An unknown error occurred";
