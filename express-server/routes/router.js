@@ -14,7 +14,7 @@ const deleteItemFromFirestore = require("../Utils/deleteItemFromFirestore");
 
 const OFFLINE_USER_UID = "gqug8hdPwn51XYJhOzI1lcLcgdXK"
 console.log(process.env.MODE);
-if (process.env.MODE) {
+if (process.env.MODE === "production") {
     console.log("running in production");
     admin.initializeApp({
         credential: admin.credential.cert({
