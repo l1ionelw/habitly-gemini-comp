@@ -3,7 +3,6 @@ const dotenv = require('dotenv').config()
 const router = express.Router();
 const admin = require('firebase-admin');
 const {getFirestore} = require("firebase-admin/firestore");
-const serviceAccount = require('../gemini-comp-f9cc5-firebase-adminsdk.json');
 const {getAuth} = require("firebase-admin/auth");
 const getItemFromFirestore = require("../Utils/getItemFromFirestore");
 const {DateTime} = require("luxon");
@@ -33,6 +32,7 @@ if (process.env.MODE === "production") {
     });
 }  else {
     console.log("NOT running in production")
+    const serviceAccount = require('../gemini-comp-f9cc5-firebase-adminsdk.json');
     admin.initializeApp({
         credential: admin.credential.cert(serviceAccount),
     });
