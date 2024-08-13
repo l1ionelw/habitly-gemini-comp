@@ -1,5 +1,5 @@
 import {getAuth, onAuthStateChanged} from "firebase/auth";
-import {createContext, useContext, useEffect, useState} from "react";
+import {createContext, useEffect, useState} from "react";
 
 export const Auth = createContext();
 
@@ -19,6 +19,8 @@ export default function AuthContext({children}) {
             setIsLoading(false);
         })
     }, [])
+    console.log(user);
+
 
 
     let values = {

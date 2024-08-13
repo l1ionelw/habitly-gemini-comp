@@ -27,7 +27,7 @@ export default function Sidebar({children}) {
         {isSmall && <div className={`sidebar-selection cursor-pointer`} onClick={()=>setMobileSideBarClicked(false)}>Collapse Sidebar</div>}
         <div className={"flex-spacer"}></div>
         <div className={`sidebar-selection mr-3 text-sm leading-3`}>
-            <p><strong>{user.displayName}</strong></p>
+            <p><strong>{user.displayName ?? "demo"}</strong></p>
             <p>{user.email}</p>
         </div>
         <a href={"/logout/"}>

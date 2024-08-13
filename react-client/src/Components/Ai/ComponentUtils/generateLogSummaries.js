@@ -3,7 +3,7 @@ import generateSummaryInternal from "../Utils/generateSummaryInternal.js";
 export default async function generateLogSummaries(logs, type) {
     let dayRange, targetDays;
     if (type === "1Week") {
-        dayRange = 7;
+        dayRange = 3;
         targetDays = 7
     }
     if (type === "1Month") {

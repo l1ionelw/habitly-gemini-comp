@@ -128,7 +128,6 @@ export default function DetailView() {
     async function callGenerateLogSummary(type) {
         setAiState("Loading");
         await generateLogSummaries(logs, type).then((resp) => {
-            console.log(resp)
             setAiMessage(resp);
         })
         setAiState("Done");
