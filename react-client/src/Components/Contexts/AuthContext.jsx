@@ -19,9 +19,6 @@ export default function AuthContext({children}) {
             setIsLoading(false);
         })
     }, [])
-    console.log(user);
-
-
 
     let values = {
         authState: authState,
